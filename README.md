@@ -6,5 +6,3 @@ and the Enteric Diseases Laboratory Branch (EDLB)
 in the Division of Foodborne, Waterborne, and Environmental Diseases
 at CDC.
 
-The manuscript describing this is pending and subject to CDC clearance.
-
