@@ -11,11 +11,15 @@ library(ape)
 library(cluster)
 library(data.table)
 
+data_folder <- "../data"
+results_folder <- "../results/"
+plot_folder <- "../plots"
+
 # isolates with confirmed food source
-lm_dat <- readRDS("C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/data/isolates_original_plus_new_dec_1_2021.rds") 
+lm_dat <- readRDS(paste0(data_folder, "/isolates_original_plus_new_dec_1_2021.rds"))
  
 ### cgMLST loci
-cgmlst_loci <- read.csv("C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/data/cgMLST_loci.csv") %>% names
+cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
 
 
 # rm(list = ls())
@@ -81,10 +85,11 @@ train.df.all <-lm_dat %>%
 
 set.seed(23)
 rf.all <- rfsrc(food ~., train.df.all, importance = T) # Weidong used importance = T for sensitivity analysis using ranked importance, ZC edited to importance = F because only the full model will be used for source prediction
-# saveRDS(rf, "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/rf_importance.rds")
+
+# saveRDS(rf, paste0(results_folder, "rf_importance.rds"))
+# rf.all <- readRDS(paste0(results_folder, "rf_importance.rds"))
 # rf_importance.rds was then copied and pasted to git
 
-# rf.all <- readRDS("data-raw/lm_wgs_manuscript/datasets/rf_importance.rds")
 ################################################################################
 #   Final model - Random forest model based on core gene + top 100 ranked genes
 ################################################################################
@@ -149,8 +154,13 @@ tp=30
 dt.s=dt[,.((loci[1:tp])),by=c('row_sele','column_sele')]
 dt.s$V1=factor(dt.s$V1)
 dt.s=data.frame(sort(table(dt.s$V1),decreasing = T))
-ggplot(dt.s[dt.s$Freq>2,],aes(Var1,Freq,color=Var1))+geom_point()+theme(legend.position='none',axis.text.x = element_text(angle = 90, vjust = 0.5))+
-  xlab("")+ylab('frequency')+ggtitle('Frequency of top ranked wgMLST in 24 different datasets')
+#ggplot(dt.s[dt.s$Freq>2,],aes(Var1,Freq,color=Var1))+geom_point()+theme(legend.position='none',axis.text.x = element_text(angle = 90, vjust = 0.5))+
+#  xlab("")+ylab('frequency')+ggtitle('Frequency of top ranked wgMLST in 24 different datasets')
+ggplot(dt.s[dt.s$Freq > 2,], aes(Var1, Freq, color = Var1)) +
+  geom_point() + theme(legend.position = 'none', axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+  xlab("") + ylab('frequency') + ggtitle('Frequency of top ranked wgMLST in 24 different datasets') +
+  ggsave(paste0(plot_folder, "/frequency_plot.png"))
+
 ##################################################################################################
 
 # source('\\\\cdc.gov\\private\\M318\\vhg8\\r scripts\\wgs\\wgMLST funs.R')
