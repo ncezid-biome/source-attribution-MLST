@@ -124,14 +124,16 @@ si<-sel_rep_iso(lm_dat, ht) ### select representative isolates
 ###################################################################
 #  importance of genes from random forest model based on all genes
 ###################################################################
+set.seed(23)
+print("LK debug: reducing the training dataset to just a handful")
 train.df.all <-lm_dat %>% 
   filter(SRR_ID %in% si) %>% 
   select('food', starts_with("LMO")) %>% 
+  select('food', ends_with("00")) %>% # DEBUG STATEMENT: delete later to stop filtering
   mutate_if(is.integer, coalesce, 0L) %>% # integer "LMOxxxxx" as integer (52.59%) performs similar to "LMOxxxxx" as factor (51.85%)
   mutate(across(starts_with("LMO"), ~as.factor(as.character(.x)))) %>%
   as.data.frame # rfsrc() doesn't work with a tibble
 
-set.seed(23)
 rf.all <- rfsrc(food ~., train.df.all, importance = T) # Weidong used importance = T for sensitivity analysis using ranked importance, ZC edited to importance = F because only the full model will be used for source prediction
 
 # saveRDS(rf, paste0(results_folder, "rf_importance.rds"))
@@ -164,6 +166,15 @@ rf.core_top100 <- rfsrc(food ~., train.df.core_top100, importance = F)
 
 # LK: patch it so that train.df is the same thing as train.df.all
 train.df <- train.df.all
+
+print("LK: debug: reducing train.df to just a handful of genes")
+train.df <-lm_dat %>% 
+  filter(SRR_ID %in% si) %>% 
+  select('food', all_of(c(cgmlst_loci, rk.genes[1:10]))) %>% 
+  mutate_if(is.integer, coalesce, 0L) %>% 
+  mutate(across(starts_with("LMO"), ~as.factor(as.character(.x)))) %>%
+  as.data.frame 
+
 
 print("lm_dat$food")
 table(lm_dat$food)
