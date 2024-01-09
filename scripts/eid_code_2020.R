@@ -3,17 +3,64 @@
 # Table 2 is produced using wgMLST_pop_gen.R
 # sel_rep_iso() works well under R-3.6.1 but gives fetal errors under R-4.1.2
 
-library(tidyverse)
-library(randomForestSRC)
-library(dendextend)
-library(party)
-library(ape) 
-library(cluster)
-library(data.table)
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(randomForestSRC))
+suppressPackageStartupMessages(library(dendextend))
+suppressPackageStartupMessages(library(party))
+suppressPackageStartupMessages(library(ape))
+library(cluster, quietly=TRUE)
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(library(foreach))
+suppressPackageStartupMessages(library(multiROC))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(phytools))
+suppressPackageStartupMessages(library(xtable))
+suppressPackageStartupMessages(library(ggtree))
+suppressPackageStartupMessages(library(ggdendro))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(doParallel))
+suppressPackageStartupMessages(library(foreach))
+suppressPackageStartupMessages(library(phytools))
+suppressPackageStartupMessages(library(dendextend))
+suppressPackageStartupMessages(library(ape))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(DECIPHER))
+
+
 
 data_folder <- "../data"
 results_folder <- "../results/"
 plot_folder <- "../plots"
+
+h=c(0,0.001,0.004,0.01) ## row selection, h is equivalent to ht above
+m<-c(0,0.01,0.05,0.1,0.3,1) #### column selection, m is equivalent to miss_thres above
+
+hh=vector('list',length(h)*length(m))
+hh[[1]]=c(0,.01)
+hh[[2]]=c(0,.05)
+hh[[3]]=c(0,.1)
+hh[[4]]=c(0,1)
+hh[[5]]=c(.001,.01)
+hh[[6]]=c(.001,.05)
+hh[[7]]=c(.001,.1)
+hh[[8]]=c(.001,1)
+hh[[9]]=c(.004,.01)
+hh[[10]]=c(.004,.05)
+hh[[11]]=c(.004,.1)
+hh[[12]]=c(.004,1)
+hh[[13]]=c(.01,.01)
+hh[[14]]=c(.01,.05)
+hh[[15]]=c(.01,.1)
+hh[[16]]=c(.01,1)
+hh[[17]]=c(0,0)
+hh[[18]]=c(.001,0)
+hh[[19]]=c(.004,0)
+hh[[20]]=c(.01,0)
+hh[[21]]=c(0,0.3)
+hh[[22]]=c(.001,0.3)
+hh[[23]]=c(.004,0.3)
+hh[[24]]=c(.01,0.3)
 
 # isolates with confirmed food source
 lm_dat <- readRDS(paste0(data_folder, "/isolates_original_plus_new_dec_1_2021.rds"))
@@ -21,17 +68,20 @@ lm_dat <- readRDS(paste0(data_folder, "/isolates_original_plus_new_dec_1_2021.rd
 ### cgMLST loci
 cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
 
-
 # rm(list = ls())
 
 sel_rep_iso<-function(dat,ht){
   #genes<-dat %>% select(starts_with("LMO")) # select all available genes
   genes<-dat %>% select(all_of(cgmlst_loci))  ###### select core genes ######
   genes<-data.frame(sapply(genes,as.factor))
-  epi<-dat %>% select(-starts_with('LMO')) # non-gene variables
+  #epi<-dat %>% select(-starts_with('LMO')) # non-gene variables
   
-  suppressWarnings(cl<-daisy(genes,metric='gower'))  # works well under R-3.6.1 but gives fetal errors under R-4.1.2
+  #suppressWarnings(cl<-daisy(genes,metric='gower'))  # works well under R-3.6.1 but gives fetal errors under R-4.1.2
+  cl<-daisy(genes,metric='gower')
+
   hc<-hclust(cl,method='complete') 
+  # LK: moved this line from above to here to refactor
+  epi<-dat %>% select(-starts_with('LMO')) # non-gene variables
   hc$labels<-epi$SRR_ID
   
   ct<-cutree(hc,h=ht)  # assign cluster number (1 to 320) to each isolate (SSR_ID) 
@@ -63,7 +113,6 @@ sel_rep_iso<-function(dat,ht){
   return(cluster.id)
 }
 
-
 ################################################################
 #  Deduplicate isolates based on core gene before imputation
 ################################################################
@@ -71,7 +120,6 @@ sel_rep_iso<-function(dat,ht){
 ht<-0.004 ##### proportional difference within clusters defined by ht
 
 si<-sel_rep_iso(lm_dat, ht) ### select representative isolates
-
 
 ###################################################################
 #  importance of genes from random forest model based on all genes
@@ -113,7 +161,13 @@ rf.core_top100 <- rfsrc(food ~., train.df.core_top100, importance = F)
 ##########################################
 #  Table 1 Summary of PulseNet isolates
 ##########################################
+
+# LK: patch it so that train.df is the same thing as train.df.all
+train.df <- train.df.all
+
+print("lm_dat$food")
 table(lm_dat$food)
+print("train.df$food")
 table(train.df$food)
 
 
@@ -143,6 +197,31 @@ rf.complete
 
 #### sensitivity analysis of ranked loci on bootstrap samples ####################################
 
+#LK I moved this res.se definition up before the lapply(1:length(res.se) statement
+res.se=foreach(n=1:length(hh),.packages=c('tidyverse','cluster','randomForestSRC')) %dopar% {
+  
+  if(hh[[n]][1]==0) ssi=as.character(lm_dat$SRR_ID) else ssi=sel_rep_iso(lm_dat,hh[[n]][1]) ### select representative isolates at different levels of ht
+  dat<-lm_dat %>% filter(SRR_ID %in% ssi) %>% select('food',starts_with('LMO'))
+  dat$food<-factor(dat$food) # identical to train.df when ht<-0.004 and miss_thres<-0.01
+  dat <- dat[,apply(dat,2,function(x) sum(is.na(x))/length(x))<= hh[[n]][2]]   ### excluding loci with proportion of missingness > miss_thres
+  dat <- dat %>% 
+    mutate_if(is.integer, coalesce, 0L) %>% 
+    mutate(across(starts_with("LMO"), ~as.factor(as.character(.x)))) %>%
+    as.data.frame
+  set.seed(78)
+  m=rfsrc(food~.,dat,ntree=1000) # impute missing values and build random forest model
+  tab=table(m$yvar,m$class.oob) # m$yvar contains values for food in dat, wheares m$class.oob contains values for food predicted by the random forest model for the purpose of caluclating OOB
+  accu=c(diag(tab)/table(m$yvar),sum(diag(tab))/length(m$yvar))
+  # alternative code for the two rows above: accu = 1-m$err.rate[m$ntree,]
+  return(list(model=m,matrix=tab,accu=accu,rep=hh[[n]][1],dsize=length(ssi),dat=dat, miss=hh[[n]][2]))
+  #df<-grp_alle_impu(dat,hh[[n]][2])
+  #names(df)[1]<-'food'
+  #df<-data.frame(sapply(df,factor))
+  #set.seed(434)
+  #rf<-randomForest(food~.,df,mtry=sqrt(dim(df)[2]),ntree=1000)
+  #list(matrix=rf$confusion,rep=hh[[n]][1],dsize=length(ssi),df=df,miss=hh[[n]][2])
+}
+
 dt=lapply(1:length(res.se),function(x) {
   d=data.frame(loci=names(sort(res.se[[x]]$model$importance[,1],decreasing = T)),
   vimp=sort(res.se[[x]]$model$importance[,1],decreasing = T))
@@ -169,7 +248,7 @@ ggplot(dt.s[dt.s$Freq > 2,], aes(Var1, Freq, color = Var1)) +
 #p.imp=names(sort(c.imp,decreasing = T))[1:100]
 #d.imp=train.df[,names(train.df) %in% c('food',p.imp)]
 rf <- rf.all
-train.df <- train.df.all
+train.df <- train.df.all 
 c.imp=rf$importance[,1]
 p.imp=names(sort(c.imp,decreasing = T))[1:100]
 d.imp=train.df[,names(train.df) %in% c('food',p.imp)]
@@ -195,9 +274,6 @@ d.imp=train.df[,names(train.df) %in% c('food',p.imp)]
 rf <- rf.core_top100 
 train.df <- train.df.core_top100
 
-library(multiROC)
-library(data.table)
-library(phytools)
 #cond=data.frame(do.call(rbind,rf@cond_distr_response()))
 #cond=data.frame(predict(rf,type='prob'))
 cond=data.frame(rf$predicted.oob)
@@ -237,10 +313,9 @@ sp=sen_spe(rf$class.oob,train.df$food)$sp
 dd=data.frame(food=names(se),se=round(se,2),sp=round(sp,2),AUC=round(as.numeric(unlist(m$AUC)),2)[1:length(se)])
 dd=dd[-dim(dd)[1],]
 
-library(xtable)
 
 #print(xtable(dd),'\\\\cdc.gov\\private\\M318\\vhg8\\manuscripts docs\\wgs\\Epidemiology\\se_sp_auc.html',type='html',include.rownames = F)
-print(xtable(dd),'C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/se_sp_auc.html',type='html',include.rownames = F)
+print(xtable(dd),paste0(results_folder,'/se_sp_auc.html'),type='html',include.rownames = F)
 
 sen_spe(rf$class.oob,train.df$food)
 
@@ -250,8 +325,6 @@ sen_spe(rf$class.oob,train.df$food)
 
 
 ###### Figure 1 fan phylo tree ############################################################
-library(ggtree)
-library(ggdendro)
 
 # dat<-read.csv("\\\\cdc.gov\\project\\CCID_NCZVED_DFBMD_EDEB\\Analytics\\Weidong\\lm model\\suppl.csv")
 # use suppl.csv because it contains WGS_id
@@ -272,7 +345,7 @@ p=vis.food.iso.clust(plot.dat,sel.fd,ylim=c(0,1),draw_ori = NULL,plot.id,plot.co
 # win.metafile("C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig1_fan_plot.wmf", 
 #              width = 11.5, height = 7)
 # pdf("C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig1_fan_plot_cgMLST1000.pdf", width = 8, height = 6)
-png(filename= "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig1_fan_plot_dot2.png",
+png(filename= paste0(results_folder,"/fig1_fan_plot_dot2.png"),
     width = 8*800, height =8*800, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
 
 p$fan.tree_dot
@@ -280,7 +353,7 @@ p$fan.tree_dot
 dev.off()
 
 
-png(filename= "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig1_fan_plot_label2.png",
+png(filename= paste0(results_folder,"/fig1_fan_plot_label2.png"),
     width = 8*800, height =8*800, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
 
 p$fan.tree_label
@@ -297,65 +370,9 @@ dev.off()
 # this section examines the prediction accuracy of random forest models built from dataset created 
 # under different cluster criteria (h) and different proportions of missing values (m)
 
-h=c(0,0.001,0.004,0.01) ## row selection, h is equivalent to ht above
-m<-c(0,0.01,0.05,0.1,0.3,1) #### column selection, m is equivalent to miss_thres above
-
-hh=vector('list',length(h)*length(m))
-hh[[1]]=c(0,.01)
-hh[[2]]=c(0,.05)
-hh[[3]]=c(0,.1)
-hh[[4]]=c(0,1)
-hh[[5]]=c(.001,.01)
-hh[[6]]=c(.001,.05)
-hh[[7]]=c(.001,.1)
-hh[[8]]=c(.001,1)
-hh[[9]]=c(.004,.01)
-hh[[10]]=c(.004,.05)
-hh[[11]]=c(.004,.1)
-hh[[12]]=c(.004,1)
-hh[[13]]=c(.01,.01)
-hh[[14]]=c(.01,.05)
-hh[[15]]=c(.01,.1)
-hh[[16]]=c(.01,1)
-hh[[17]]=c(0,0)
-hh[[18]]=c(.001,0)
-hh[[19]]=c(.004,0)
-hh[[20]]=c(.01,0)
-hh[[21]]=c(0,0.3)
-hh[[22]]=c(.001,0.3)
-hh[[23]]=c(.004,0.3)
-hh[[24]]=c(.01,0.3)
-
-library(doParallel)
-library(foreach)
-
 ncores <- detectCores() - 1 
 cl=makeCluster(ncores)
 registerDoParallel(cl) #number of cores on the machine
-
-res.se=foreach(n=1:length(hh),.packages=c('tidyverse','cluster','randomForestSRC')) %dopar% {
-  
-  if(hh[[n]][1]==0) ssi=as.character(lm_dat$SRR_ID) else ssi=sel_rep_iso(lm_dat,hh[[n]][1]) ### select representative isolates at different levels of ht
-  dat<-lm_dat %>% filter(SRR_ID %in% ssi) %>% select('food',starts_with('LMO'))
-  dat$food<-factor(dat$food) # identical to train.df when ht<-0.004 and miss_thres<-0.01
-  dat <- dat[,apply(dat,2,function(x) sum(is.na(x))/length(x))<= hh[[n]][2]]   ### excluding loci with proportion of missingness > miss_thres
-  dat <- dat %>% 
-    mutate_if(is.integer, coalesce, 0L) %>% 
-    mutate(across(starts_with("LMO"), ~as.factor(as.character(.x)))) %>%
-    as.data.frame
-  set.seed(78)
-  m=rfsrc(food~.,dat,ntree=1000) # impute missing values and build random forest model
-  tab=table(m$yvar,m$class.oob) # m$yvar contains values for food in dat, wheares m$class.oob contains values for food predicted by the random forest model for the purpose of caluclating OOB
-  accu=c(diag(tab)/table(m$yvar),sum(diag(tab))/length(m$yvar))
-  # alternative code for the two rows above: accu = 1-m$err.rate[m$ntree,]
-  return(list(model=m,matrix=tab,accu=accu,rep=hh[[n]][1],dsize=length(ssi),dat=dat, miss=hh[[n]][2]))
-  #df<-grp_alle_impu(dat,hh[[n]][2])
-  #names(df)[1]<-'food'
-  #df<-data.frame(sapply(df,factor))
-  #set.seed(434)
-  #rf<-randomForest(food~.,df,mtry=sqrt(dim(df)[2]),ntree=1000)
-  #list(matrix=rf$confusion,rep=hh[[n]][1],dsize=length(ssi),df=df,miss=hh[[n]][2])
-}
 
 # save(lm_dat,train.df,train.imp,rf,res.se,file='\\\\cdc.gov\\project\\CCID_NCZVED_DFBMD_EDEB\\Analytics\\Weidong\\lm model\\sen_1.RData') 
 # load('//cdc.gov/project/CCID_NCZVED_DFBMD_EDEB/Analytics/____ARCHIVE/Weidong/Whole Genomo Sequence/Lm WGS/data/sen_1.RData') 
@@ -425,7 +442,7 @@ lt=lt1[1:length(levels(lm_dat$food))]
 # win.metafile("\\\\cdc.gov\\private\\M318\\vhg8\\manuscripts docs\\wgs\\epidemiology\\sensitivity1.wmf",width = 11.5, 
 #              height = 7)
 #pdf("\\\\cdc.gov\\private\\M318\\vhg8\\manuscripts docs\\wgs\\epidemiology\\sensitivity1.pdf", width = 11.5, height = 7)
-png(filename= "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig2_sensitivity2.png", width = 8*400, height =8*300, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
+png(filename= paste0(results_folder,"/fig2_sensitivity2.png"), width = 8*400, height =8*300, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
 
 ggplot(df.lg,aes(row_sele,accuracy,group=food,color=food,linetype=food))+geom_line(size=1)+geom_point(aes(shape = food), size = 2)+
   # geom_vline(data=subset(df.lg,column_sele==1),aes(xintercept=3),linetype=2,color='red')+
@@ -456,9 +473,6 @@ dev.off()
 
 
 ####### Figure 3 predictability over ranked loci #########################################
-library(data.table)
-library(doParallel)
-library(foreach)
 
 ncores <- detectCores() - 1
 cl <- makeCluster(ncores)
@@ -483,7 +497,7 @@ ltype=ifelse(levels(as.factor(dat$food))=='overall','solid','longdash')
 
 
 # [figure 3 on the manuscript]
-png(filename= "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig3_pred_accu_loci2.png", width = 8*400, height =8*300, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
+png(filename= paste0(results_folder,"/fig3_pred_accu_loci2.png"), width = 8*400, height =8*300, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
 
 ggplot(dat,aes(loci,se,group=food,color=food))+geom_line(aes(linetype=food),size=1)+ylab('estimated sensitivity')+
   geom_point(aes(shape = food), size=2)+
@@ -532,7 +546,7 @@ pp=plot_panel_pred_prob_ind(pred.l,train=TRUE) ### train indicate train data and
 # win.metafile("\\\\cdc.gov\\private\\M318\\vhg8\\manuscripts docs\\wgs\\EID\\revision\\fig3_pred_prob_ind.wmf", width = 10.5, height = 7)
 # pdf("\\\\cdc.gov\\private\\M318\\vhg8\\manuscripts docs\\wgs\\EID\\revision\\fig3_pred_prob_ind.pdf", width = 10.5, height = 7)
 
-png(filename= "C:/Users/nyv5/OneDrive - CDC/Weidong/Lm WGS/results/fig4_pred_prob2.png", 
+png(filename= paste0(results_folder,"/fig4_pred_prob2.png"), 
     width = 8*400, height =8*300, units = "px", res=400,pointsize = 15, bg = "white", restoreConsole = TRUE)
 
 pp$p
@@ -545,12 +559,6 @@ dev.off()
 
 
 ##### tanglegram supplement figure ################################
-
-library(phytools)
-library(dendextend)
-library(ape)
-library(tidyverse)
-library(DECIPHER)
 
 eid_iso=read.delim('\\\\cdc.gov\\project\\CCID_NCZVED_DFBMD_EDEB\\Analytics\\Weidong\\LM model\\ncbi_access_dat.csv',sep=',',header=T,stringsAsFactors = F)
 
