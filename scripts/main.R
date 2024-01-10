@@ -9,68 +9,152 @@ suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(multiROC))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(gt))
+suppressPackageStartupMessages(library(phytools))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(geiger))
+suppressPackageStartupMessages(library(dendextend))
+suppressPackageStartupMessages(library(DECIPHER))
+suppressPackageStartupMessages(library(msgl))
+suppressPackageStartupMessages(library(mlogit))
+suppressPackageStartupMessages(library(caret))
+suppressPackageStartupMessages(library(xgboost))
+suppressPackageStartupMessages(library(Matrix))
+suppressPackageStartupMessages(library(StatMatch))
+suppressPackageStartupMessages(library(grid))
+suppressPackageStartupMessages(library(gtable))
+suppressPackageStartupMessages(library(vcd))
 
-lm_dat <- readRDS("isolates_original_plus_new_dec_1_2021.rds")
-### cgMLST loci
+data_folder <- "../data"
+results_folder <- "../results"
+plot_folder <- "../plots"
+script_folder <- "."
 
+#print("DEBUG: changed filter from starts_with to starts_with('LMO003') to reduce it to 42 loci")
+loci_start_with <- "LMO"
 
+source(paste0(script_folder,"/wgMLST_funs_update.R"))
+
+lm_dat <- readRDS(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.rds"))
+cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
 
 ### ht defines the threshold of the proportional difference within which isolates were treated
 #### as originated from the same outbreaks or the collection from the same facilities
+
 ht <- 0.004
+
 si <- sel_rep_iso(lm_dat, ht) ### select representative isolates
 
-train.df.all <- lm_dat %>%
-  select("food", starts_with("LMO")) %>%
 
+###################################################################
+#  importance of genes from random forest model based on all genes
+###################################################################
+train.df.all <- lm_dat %>%
+  filter(SRR_ID %in% si) %>%
+  #select("food", starts_with(loci_start_with)) %>%
+  select("food", starts_with(loci_start_with)) %>%
+  mutate_if(is.integer, coalesce, 0L) %>% # integer "LMOxxxxx" as integer (52.59%) performs similar to "LMOxxxxx" as factor (51.85%)
+  mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
+  as.data.frame() # rfsrc() doesn't work with a tibble
+
+set.seed(23)
 rf.all <- rfsrc(food ~ ., train.df.all, importance = T) #
+
 rf <- rf.all
 c.imp <- rf$importance[, 1]
 rk.genes <- names(sort(c.imp, decreasing = T)) # [ZC: top ranked genes]
+
+train.df.core_top100 <- lm_dat %>%
   filter(SRR_ID %in% si) %>%
   select("food", all_of(c(cgmlst_loci, rk.genes[1:100]))) %>%
   mutate_if(is.integer, coalesce, 0L) %>%
-  mutate(across(starts_with("LMO"), ~ as.factor(as.character(.x)))) %>%
+  mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
   as.data.frame()
 
+
+rf.core_top100 <- rfsrc(food ~ ., train.df.core_top100, importance = F)
+rf <- rf.core_top100
 train.df <- train.df.core_top100
 
+set.seed(23)
+rf.core_top100 <- rfsrc(food ~ ., train.df, importance = F)
 
+###### summary of PulseNet isolates and training dataset #############
+table(lm_dat$food)
+table(train.df$food) ### note change
+################################################################
+
+rf <- rf.all
+train.df <- train.df.all
+c.imp <- rf$importance[, 1]
 p.imp <- names(sort(c.imp, decreasing = T))[1:100]
+d.imp <- train.df[, names(train.df) %in% c("food", p.imp)]
 
 ############################################################################################
+################# Calculation of AMOVA model ###############################################
+############################################################################################
+
 temp <- lm_dat %>%
+  filter(SRR_ID %in% si) %>%
+  select("food", starts_with(loci_start_with)) %>%
+  mutate_if(is.integer, coalesce, 0L) %>%
+  mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
   as.data.frame()
-wgmlst <- temp %>% select(starts_with("LMO"))
+
+wgmlst <- temp %>% select(starts_with(loci_start_with))
 fd <- levels(temp$food)
 n.f <- length(table(temp$food))
 
+fd.gene <- as.data.frame(cbind(temp$food, wgmlst))
+names(fd.gene)[1] <- "food"
+
 #### Note calculation amo is time consuming .... ######################
+
+amo <- lapply(1:(n.f - 1), function(i) {
+  lapply((i + 1):n.f, function(j) {
+    print(paste(fd[i], fd[j], sep = "-"))
+    dat <- fd.gene[fd.gene$food %in% c(fd[i], fd[j]), ]
+    strata.df <- data.frame(food = dat$food)
+    df.g <- df2genind(dat[, !names(dat) == "food"], ploidy = 1)
     strata(df.g) <- strata.df
     g <-suppressMessages(poppr.amova(df.g, ~food, nperm = 499))
     p <- randtest(g, nrepet = 499)
     list(fd_pair = paste(fd[i], fd[j], sep = "-"), amova = g, pvalue = p$pvalue)
+  })
 })
 
+# save(amo, file = "amo.RData")
+# load("amo.RData")
 
 phi <- lapply(amo, function(p) unlist(lapply(p, function(g) round(g$amova$statphi * 100, 1))))
 pvalue <- lapply(amo, function(x) unlist(lapply(x, function(g) g$pvalue)))
 mt <- data.frame(matrix(rep(NA, length(fd)^2), ncol = length(fd)))
 lapply(1:length(phi), function(p) {
   mt[p, (length(fd) - length(phi[[p]]) + 1):length(fd)] <<- paste(paste(phi[[p]], pvalue[[p]], sep = "("), ")", sep = "")
+})
 names(mt) <- fd
 row.names(mt) <- fd
 
+mt %>% gt()
+
+###########################################
+#   Table 2 Summary of predictive metrics
+###########################################
 
 cond <- data.frame(rf$predicted.oob)
 pd <- c("_pred_rf", "_pred_rf", "_pred_rf", "_pred_rf", "_pred_rf")
 names(cond) <- paste(names(cond), pd, sep = "")
 res <- data.frame(to.matrix(train.df$food, levels(train.df$food)))
+# res=data.frame(rf@responses@transformations)
 names(res) <- paste(names(res), "_true", sep = "")
+dat <- cbind(res, cond)
 
+m <- multi_roc(dat)
 
+####### estimate prediction uncertainty using multinomial distributio of conditional probability##
 
+temp <- cond
 temp1 <- data.frame(obs = 1:nrow(train.df), pred.fd = rf$class.oob, temp)
+
 temp2 <- temp1 %>% gather("food", "prob", -c(1:2))
 # temp2$food=sapply(temp2$food,function(x) strsplit(x,split = '\\.')[[1]][2])
 temp2 <- data.table(temp2[order(temp2$obs), ])
@@ -81,23 +165,47 @@ out$report <- paste(paste(paste(out$mean, out$lower, sep = "("), out$upper, sep 
 out$food <- levels(train.df$food)
 out <- out[order(out$food), ]
 
+se <- sen_spe(rf$class.oob, train.df$food)$se
+sp <- sen_spe(rf$class.oob, train.df$food)$sp
+
+dd <- data.frame(food = names(se), se = round(se, 2), sp = round(sp, 2), AUC = round(as.numeric(unlist(m$AUC)), 2)[1:length(se)])
+dd <- dd[-dim(dd)[1], ]
 
 ##### Table 2 #######################
 dd %>% gt()
 
+
+##########################################################################################################
+#      Figure 1 prediction accuracy based on different missing value thresholds and cutoffs for cluster
 ##########################################################################################################
 
+######## sensitivity analysis of cluster definition and handling of loci with missing alleles #########################
+# based on the prediction accuracy of random forest models built from the training datasets created
 # under different cluster criteria (ht) and proportions of missing threshold
+
 ### the algorithm uses parallel computering based on multi-core CUP and it may take long time for the systems with a small number of cores 
+
+ht <- c(0, 0.001, 0.004, 0.01) ## row selection, h is equivalent to ht above
 missing_threshold <- c(0, 0.01, 0.05, 0.1, 0.3, 1) #### column selection, loci would be excluded if missing prop is greater than the threshold value
 
+hh <- c(sapply(ht,function(x) lapply(missing_threshold,function(y) c(x,y))))
+
+ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
 cl <- makeCluster(ncores)
 registerDoParallel(cl) # number of cores on the machine
+
+### Note large numbers of trees may take longer time to complete ########################
 n_tree <- 300
-oportion of missingness > miss_thres
+res.se <- foreach(n = 1:length(hh), .packages = c("dplyr", "cluster", "randomForestSRC")) %dopar% {
+  if (hh[[n]][1] == 0) ssi <- as.character(lm_dat$SRR_ID) else ssi <- sel_rep_iso(lm_dat, hh[[n]][1]) ### select representative isolates at different levels of ht
+  dat <- lm_dat %>%
+    filter(SRR_ID %in% ssi) %>%
+    select("food", starts_with(loci_start_with))
+  dat$food <- factor(dat$food) # identical to train.df when ht<-0.004 and miss_thres<-0.01
+  dat <- dat[, apply(dat, 2, function(x) sum(is.na(x)) / length(x)) <= hh[[n]][2]] ### excluding loci with proportion of missingness > miss_thres
   dat <- dat %>%
     mutate_if(is.integer, coalesce, 0L) %>%
-    mutate(across(starts_with("LMO"), ~ as.factor(as.character(.x)))) %>%
+    mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
     as.data.frame()
   set.seed(78)
   m <- rfsrc(food ~ ., dat, ntree = n_tree, importance = TRUE) # impute missing values and build random forest model
@@ -262,5 +370,4 @@ pp <- plot_panel_pred_prob_ind(pred.l, train = TRUE) ### train indicate train da
 ###### Figure 3 ###################################################################
 pp$p
 #ggsave(filename = "fig3_pred_prob2.png", width = 15, height = 15, units = "in")
-
 
