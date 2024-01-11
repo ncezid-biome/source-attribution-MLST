@@ -24,17 +24,19 @@ suppressPackageStartupMessages(library(grid))
 suppressPackageStartupMessages(library(gtable))
 suppressPackageStartupMessages(library(vcd))
 
-data_folder <- "../data"
-results_folder <- "../results"
-plot_folder <- "../plots"
-script_folder <- "."
+base_dir <- "//wsl.localhost/Ubuntu-18.04/home/gzu2/src/source-attribution-MLST/";
+data_folder <- paste0(base_dir,"data")
+results_folder <- paste0(base_dir,"results")
+plot_folder <- paste0(base_dir,"plots")
+script_folder <- paste0(base_dir, "scripts")
 
 #print("DEBUG: changed filter from starts_with to starts_with('LMO003') to reduce it to 42 loci")
 loci_start_with <- "LMO"
 
 source(paste0(script_folder,"/wgMLST_funs_update.R"))
 
-lm_dat <- readRDS(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.rds"))
+#lm_dat <- readRDS(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.rds"))
+lm_dat <- read.csv(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.csv.gz"),header = TRUE)
 cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
 
 ### ht defines the threshold of the proportional difference within which isolates were treated
