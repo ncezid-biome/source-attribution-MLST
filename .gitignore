@@ -1,0 +1,7 @@
+results/*
+
+.R*
+*.R[a-zA-Z0-9]*
+
+*.sw[op]
+
