@@ -7,7 +7,6 @@ suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(multiROC))
-suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(gt))
 suppressPackageStartupMessages(library(phytools))
 suppressPackageStartupMessages(library(data.table))
@@ -23,12 +22,16 @@ suppressPackageStartupMessages(library(StatMatch))
 suppressPackageStartupMessages(library(grid))
 suppressPackageStartupMessages(library(gtable))
 suppressPackageStartupMessages(library(vcd))
+suppressPackageStartupMessages(library(tidyverse))
 
-base_dir <- "//wsl.localhost/Ubuntu-18.04/home/gzu2/src/source-attribution-MLST/";
+base_dir <- "/home/gzu2/src/source-attribution-MLST/"
 data_folder <- paste0(base_dir,"data")
 results_folder <- paste0(base_dir,"results")
 plot_folder <- paste0(base_dir,"plots")
 script_folder <- paste0(base_dir, "scripts")
+options(browser = 'firefox') 
+#ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
+ncores <- 4
 
 #print("DEBUG: changed filter from starts_with to starts_with('LMO003') to reduce it to 42 loci")
 loci_start_with <- "LMO"
@@ -52,7 +55,6 @@ si <- sel_rep_iso(lm_dat, ht) ### select representative isolates
 ###################################################################
 train.df.all <- lm_dat %>%
   filter(SRR_ID %in% si) %>%
-  #select("food", starts_with(loci_start_with)) %>%
   select("food", starts_with(loci_start_with)) %>%
   mutate_if(is.integer, coalesce, 0L) %>% # integer "LMOxxxxx" as integer (52.59%) performs similar to "LMOxxxxx" as factor (51.85%)
   mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
@@ -192,7 +194,6 @@ missing_threshold <- c(0, 0.01, 0.05, 0.1, 0.3, 1) #### column selection, loci w
 
 hh <- c(sapply(ht,function(x) lapply(missing_threshold,function(y) c(x,y))))
 
-ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
 cl <- makeCluster(ncores)
 registerDoParallel(cl) # number of cores on the machine
 
@@ -371,5 +372,5 @@ pp <- plot_panel_pred_prob_ind(pred.l, train = TRUE) ### train indicate train da
 
 ###### Figure 3 ###################################################################
 pp$p
-#ggsave(filename = "fig3_pred_prob2.png", width = 15, height = 15, units = "in")
+ggsave(filename = paste0(results_folder,"fig3_pred_prob2.png"), width = 15, height = 15, units = "in")
 
