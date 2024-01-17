@@ -30,7 +30,7 @@ results_folder <- paste0(base_dir,"results")
 plot_folder <- paste0(base_dir,"plots")
 script_folder <- paste0(base_dir, "scripts")
 #ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
-ncores <- 1
+ncores <- 3
 reproducible <- TRUE
 model_filename <- paste0(results_folder,"/models.rds")
 print(paste0("Running with ",ncores," cores. Reproducibility has been set to ", reproducible));
@@ -66,62 +66,48 @@ model <- readRDS(model_filename)
 print(paste0("Read models file ", model_filename, " which has ", length(model), " replicates"))
 
 predictions <- list()
-for (i in 1:length(model)) {
 
-  # Save the model
+for (i in 1:length(model)) {
   m <- model[[i]]
 
-	missing_columns <- setdiff(names(query), names(m$xvar))
-	print(missing_columns)
+  # Identify missing columns
+  missing_columns <- setdiff(names(query), names(m$xvar))
 
-	query_filtered_cols <- query[, setdiff(names(query), missing_columns)]
+  # Remove missing columns from the query
+  query_filtered_cols <- query[, setdiff(names(query), missing_columns)]
 
-	# Sort factor levels in the training data
-	m$xvar[, grep(loci_start_with, names(m$xvar))] <- 
-		lapply(m$xvar[, grep(loci_start_with, names(m$xvar))], function(x) factor(x, levels = sort(levels(x))))
-	# Sort factor levels in the new data
-	query_filtered_cols[, grep(loci_start_with, names(query_filtered_cols))] <- 
-		lapply(query_filtered_cols[, grep(loci_start_with, names(query_filtered_cols))], function(x) factor(x, levels = sort(levels(x))))
+  # Align factor levels
+  for (col in grep(loci_start_with, names(query_filtered_cols))) {
+    query_filtered_cols[[col]] <- factor(
+      query_filtered_cols[[col]],
+      levels = intersect(levels(query_filtered_cols[[col]]), levels(m$xvar[[col]]))
+    )
+  }
 
-	# Check factor levels in the training data
-	levels_in_training <- lapply(m$xvar[, grep(loci_start_with, names(m$xvar))], levels)
-	# Check factor levels in the new data
-	levels_in_new_data <- lapply(query_filtered_cols[, grep(loci_start_with, names(query_filtered_cols))], levels)
-	# Compare factor levels
-	print(levels_in_training)
-	print(levels_in_new_data)
-
-	# Identify extra levels in the test data
-	extra_levels_test <- lapply(
-		query_filtered_cols[, grep(loci_start_with, names(query_filtered_cols))],
-		function(x) setdiff(levels(x), unlist(levels_in_training))
-	)
-
-	# Remove extra levels in the test data
-	for (col in grep(loci_start_with, names(query_filtered_cols))) {
-		query_filtered_cols[[col]] <- factor(
-			query_filtered_cols[[col]],
-			levels = intersect(levels(query_filtered_cols[[col]]), levels_in_training[[col]])
-		)
-	}
-
-	pred <- predict.rfsrc(m, newdata = query_filtered_cols)
+  # Make predictions
+  pred <- predict.rfsrc(m, newdata = query_filtered_cols)
   predictions[[i]] <- pred$predicted
-	#print(pred)
-  #
-	#print("SUMMARY OF PREDICTIONS")
-	#print(summary(pred))
-	#print("STR OF PREDICTIONS")
-	#print(str(pred))
-	#print("PREDICTIONS$predicted")
-	#print(pred$predicted)
-	#print(summary(pred$predicted))
-	#print(str(pred$predicted))
-
-	#all_pred <- lapply(model, function(m) predict(m, newdata = query))
-	#print(all_pred)
 }
 
 print("PREDICTIONS ARRAY")
-print(predictions)
+#print(predictions)
+
+# Now get aggregate metrics from each bootstrap model
+
+# Convert list of predictions into a matrix
+predictions_matrix <- do.call(rbind, predictions)
+
+# Calculate average and standard deviation for each category
+average_per_category <- colMeans(predictions_matrix)
+std_dev_per_category <- apply(predictions_matrix, 2, sd)
+
+# Combine results into a data frame for better readability
+result_df <- data.frame(
+  Category = colnames(predictions_matrix),
+  Average = average_per_category,
+  Std_Dev = std_dev_per_category
+)
+
+# Print the results
+print(result_df)
 

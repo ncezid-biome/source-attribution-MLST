@@ -30,7 +30,7 @@ results_folder <- paste0(base_dir,"results")
 plot_folder <- paste0(base_dir,"plots")
 script_folder <- paste0(base_dir, "scripts")
 #ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
-ncores <- 2
+ncores <- 3
 bootstrap_reps <- 10
 reproducible <- TRUE
 print(paste0("Running with ",ncores," cores and ", bootstrap_reps, " replicates. Reproducibility has been set to ", reproducible));
@@ -41,7 +41,7 @@ options(rf.cores=ncores,mc.cores=ncores)
 #options(rf.cores=orgOpt$rf.cores,mc.cores=orgOpt$mc.cores)
 
 loci_start_with <- "LMO"
-#print("DEBUG: changed filter from starts_with to starts_with('LMO0030') to reduce it to 10 loci"); loci_start_with <- "LMO0030"
+print("DEBUG: changed filter from starts_with to starts_with('LMO0030') to reduce it to 10 loci"); loci_start_with <- "LMO0030"
 print(paste0("Loci start with ",loci_start_with))
 
 source(paste0(script_folder,"/wgMLST_funs_update.R"))
