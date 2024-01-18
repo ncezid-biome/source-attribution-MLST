@@ -1,36 +1,44 @@
-# Revised code by Weidong Gu December 8, 2023
+#!/usr/bin/env Rscript
 suppressPackageStartupMessages(library(cluster))
-suppressPackageStartupMessages(library(hierfstat))
-suppressPackageStartupMessages(library(poppr))
-suppressPackageStartupMessages(library(mmod))
 suppressPackageStartupMessages(library(randomForestSRC))
-suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(doParallel))
-suppressPackageStartupMessages(library(multiROC))
-suppressPackageStartupMessages(library(gt))
-suppressPackageStartupMessages(library(phytools))
 suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(geiger))
 suppressPackageStartupMessages(library(dendextend))
-suppressPackageStartupMessages(library(DECIPHER))
-suppressPackageStartupMessages(library(msgl))
-suppressPackageStartupMessages(library(mlogit))
-suppressPackageStartupMessages(library(caret))
-suppressPackageStartupMessages(library(xgboost))
-suppressPackageStartupMessages(library(Matrix))
-suppressPackageStartupMessages(library(StatMatch))
-suppressPackageStartupMessages(library(grid))
-suppressPackageStartupMessages(library(gtable))
-suppressPackageStartupMessages(library(vcd))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(optparse))
 
-base_dir <- "/home/gzu2/src/source-attribution-MLST/"
-data_folder <- paste0(base_dir,"data")
-results_folder <- paste0(base_dir,"results")
-plot_folder <- paste0(base_dir,"plots")
-script_folder <- paste0(base_dir, "scripts")
-#ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
-ncores <- 3
+# Get the script name from command-line arguments
+cli_args <- commandArgs(trailingOnly = FALSE)
+script_arg <- grep("--file=", cli_args, value = TRUE)
+script_name <- sub("--file=", "", script_arg)
+
+script_name_absolute <- tools::file_path_as_absolute(script_name)
+script_dir <- dirname(script_name_absolute)
+
+# Command line argument parsing
+option_list <- list(
+    make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),
+    make_option(c("-o", "--output"), type = "character", help = "Directory of bootstrap random forest models to output"),
+    make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet", default = "food"),
+    make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input."),
+    make_option(c("-s", "--starts-with"), type = "character", help = "The prefix of all independent variables.", default = "LMO")
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# required options
+required_options <- c("input", "output", "core-loci")
+for (o in required_options) {
+  if (!(o %in% names(opt))) {
+    cat("ERROR: Required option", o, "is missing.\n")
+    print_help(opt_parser)
+    q(status = 1)
+  }
+}
+
+bootstrap_folder <- opt$output
+
+ncores <- 1
 bootstrap_reps <- 10
 reproducible <- TRUE
 print(paste0("Running with ",ncores," cores and ", bootstrap_reps, " replicates. Reproducibility has been set to ", reproducible));
@@ -44,11 +52,12 @@ loci_start_with <- "LMO"
 print("DEBUG: changed filter from starts_with to starts_with('LMO0030') to reduce it to 10 loci"); loci_start_with <- "LMO0030"
 print(paste0("Loci start with ",loci_start_with))
 
-source(paste0(script_folder,"/wgMLST_funs_update.R"))
+functions_script <- file.path(script_dir, "wgMLST_funs_update.R")
+source(functions_script)
 
-#lm_dat <- readRDS(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.rds"))
-lm_dat <- read.csv(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.csv.gz"),header = TRUE)
-cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
+lm_dat <- read.csv(opt$'input', header = TRUE)
+# This is used in the sel_rep_iso function to select representative isolates
+cgmlst_loci <- read.csv(opt$'core-loci') %>% names
 
 ### ht defines the threshold of the proportional difference within which isolates were treated
 #### as originated from the same outbreaks or the collection from the same facilities
@@ -69,39 +78,18 @@ train.df.all <- lm_dat %>%
   as.data.frame() # rfsrc() doesn't work with a tibble
 
 # Bootstrapping
-model_list <- list()
-filenames  <- list()
+if(!dir.exists(bootstrap_folder)){
+  dir.create(bootstrap_folder)
+}
 for (i in 1:bootstrap_reps){
+  my_undefined <- rnorm(5)
   model <- rfsrc(food ~ ., train.df.all, importance = T ) #
 
   # Save intermediate results
-  filename <- paste0(results_folder,"/model", i, ".rds")
+  # TODO in the future in might be nice to save the filename with the random seed or a hash
+  # so that we can just add more bootstraps if needed
+  filename <- paste0(bootstrap_folder,"/bs", i, ".rds")
   print(paste0("Saving bootstrap", i, " to ", filename))
   saveRDS(model, file = filename)
-
-  # Remember the intermediate files
-  model_list[[i]] <- readRDS(filename)
-  filenames[[i]] <- filename
 }
-
-# If we made it this far, then combine all the models into an array of models
-saveRDS(model_list, paste0(results_folder, "/models.rds"))
-# Delete intermediate files
-for (f in filenames) {
-  print(paste0("Removing intermediate file ", f))
-  file.remove(f)
-}
-
-#rf.all <- rfsrc(food ~ ., train.df.all, importance = T ) #
-
-#rf <- rf.all
-#c.imp <- rf$importance[, 1]
-#rk.genes <- names(sort(c.imp, decreasing = T)) # [ZC: top ranked genes]
-#c.imp <- as.numeric(c.imp)
-
-#for (i in seq_along(rk.genes)) {
-#    cat(rk.genes[i], "\t", c.imp[i], "\n")
-#}
-
-
 
