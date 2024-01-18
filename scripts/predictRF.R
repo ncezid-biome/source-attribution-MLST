@@ -29,12 +29,13 @@ data_folder <- paste0(base_dir,"data")
 results_folder <- paste0(base_dir,"results")
 plot_folder <- paste0(base_dir,"plots")
 script_folder <- paste0(base_dir, "scripts")
+bootstrap_folder <- paste0(results_folder,"/model")
 #ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
-ncores <- 3
+ncores <- 1
 reproducible <- TRUE
-model_filename <- paste0(results_folder,"/models.rds")
+model_filename <- paste0(bootstrap_folder,"/bs1.rds")
 print(paste0("Running with ",ncores," cores. Reproducibility has been set to ", reproducible));
-print(paste0("Will read model with bootstraps: ", model_filename))
+print(paste0("Will read model: ", model_filename))
 
 orgOpt <- options()
 options(browser = 'firefox') 
@@ -62,52 +63,23 @@ query <- lm_dat %>%
   as.data.frame() # rfsrc() doesn't work with a tibble
 query <- query[1,]; print("DEBUG: using first row of spreadsheet as query"); 
 
-model <- readRDS(model_filename)
-print(paste0("Read models file ", model_filename, " which has ", length(model), " replicates"))
+m <- readRDS(model_filename)
 
-predictions <- list()
+# Identify missing columns
+missing_columns <- setdiff(names(query), names(m$xvar))
 
-for (i in 1:length(model)) {
-  m <- model[[i]]
+# Remove missing columns from the query
+query_filtered_cols <- query[, setdiff(names(query), missing_columns)]
 
-  # Identify missing columns
-  missing_columns <- setdiff(names(query), names(m$xvar))
-
-  # Remove missing columns from the query
-  query_filtered_cols <- query[, setdiff(names(query), missing_columns)]
-
-  # Align factor levels
-  for (col in grep(loci_start_with, names(query_filtered_cols))) {
-    query_filtered_cols[[col]] <- factor(
-      query_filtered_cols[[col]],
-      levels = intersect(levels(query_filtered_cols[[col]]), levels(m$xvar[[col]]))
-    )
-  }
-
-  # Make predictions
-  pred <- predict.rfsrc(m, newdata = query_filtered_cols)
-  predictions[[i]] <- pred$predicted
+# Align factor levels
+for (col in grep(loci_start_with, names(query_filtered_cols))) {
+  query_filtered_cols[[col]] <- factor(
+    query_filtered_cols[[col]],
+    levels = intersect(levels(query_filtered_cols[[col]]), levels(m$xvar[[col]]))
+  )
 }
 
-print("PREDICTIONS ARRAY")
-#print(predictions)
+# Make predictions
+pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
-# Now get aggregate metrics from each bootstrap model
-
-# Convert list of predictions into a matrix
-predictions_matrix <- do.call(rbind, predictions)
-
-# Calculate average and standard deviation for each category
-average_per_category <- colMeans(predictions_matrix)
-std_dev_per_category <- apply(predictions_matrix, 2, sd)
-
-# Combine results into a data frame for better readability
-result_df <- data.frame(
-  Category = colnames(predictions_matrix),
-  Average = average_per_category,
-  Std_Dev = std_dev_per_category
-)
-
-# Print the results
-print(result_df)
-
+print(pred$predicted)
