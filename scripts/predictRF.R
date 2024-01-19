@@ -1,40 +1,43 @@
-# Revised code by Weidong Gu December 8, 2023
+#!/usr/bin/env Rscript
 suppressPackageStartupMessages(library(cluster))
-#suppressPackageStartupMessages(library(hierfstat))
-#suppressPackageStartupMessages(library(poppr))
-#suppressPackageStartupMessages(library(mmod))
 suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(doParallel))
-#suppressPackageStartupMessages(library(multiROC))
 suppressPackageStartupMessages(library(gt))
-#suppressPackageStartupMessages(library(phytools))
 suppressPackageStartupMessages(library(data.table))
-#suppressPackageStartupMessages(library(geiger))
-#suppressPackageStartupMessages(library(dendextend))
-#suppressPackageStartupMessages(library(DECIPHER))
-#suppressPackageStartupMessages(library(msgl))
-#suppressPackageStartupMessages(library(mlogit))
-#suppressPackageStartupMessages(library(caret))
-#suppressPackageStartupMessages(library(xgboost))
-#suppressPackageStartupMessages(library(Matrix))
-#suppressPackageStartupMessages(library(StatMatch))
-#suppressPackageStartupMessages(library(grid))
-#suppressPackageStartupMessages(library(gtable))
-#suppressPackageStartupMessages(library(vcd))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(optparse))
 
-base_dir <- "/home/gzu2/src/source-attribution-MLST/"
-data_folder <- paste0(base_dir,"data")
-results_folder <- paste0(base_dir,"results")
-plot_folder <- paste0(base_dir,"plots")
-script_folder <- paste0(base_dir, "scripts")
-bootstrap_folder <- paste0(results_folder,"/model")
-#ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
-ncores <- 1
-reproducible <- TRUE
-model_filename <- paste0(bootstrap_folder,"/bs1.rds")
-print(paste0("Running with ",ncores," cores. Reproducibility has been set to ", reproducible));
+cli_args <- commandArgs(trailingOnly = FALSE)
+script_arg <- grep("--file=", cli_args, value = TRUE)
+script_name <- sub("--file=", "", script_arg)
+
+script_name_absolute <- tools::file_path_as_absolute(script_name)
+script_dir <- dirname(script_name_absolute)
+
+# Command line argument parsing
+option_list <- list(
+    make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file"),
+    make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome."),
+    make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default: 1", default = 1)
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# required options
+required_options <- c("model", "query")
+for (o in required_options) {
+  if (!(o %in% names(opt))) {
+    cat("ERROR: Required option", o, "is missing.\n")
+    print_help(opt_parser)
+    q(status = 1)
+  }
+}
+
+ncores <- opt$threads
+
+model_filename <- opt$model
+print(paste0("Running with ",ncores," cores."))
 print(paste0("Will read model: ", model_filename))
 
 orgOpt <- options()
@@ -42,26 +45,13 @@ options(browser = 'firefox')
 options(rf.cores=ncores,mc.cores=ncores)
 
 loci_start_with <- "LMO"
-#print("DEBUG: changed filter from starts_with to starts_with('LMO0030') to reduce it to 10 loci"); loci_start_with <- "LMO0030"
 
-source(paste0(script_folder,"/wgMLST_funs_update.R"))
+source(paste0(script_dir, "/wgMLST_funs_update.R"))
 
-lm_dat <- read.csv(paste0(data_folder,"/isolates_original_plus_new_dec_1_2021.csv.gz"),header = TRUE)
-cgmlst_loci <- read.csv(paste0(data_folder, "/cgMLST_loci.csv")) %>% names
-
-### ht defines the threshold of the proportional difference within which isolates were treated
-#### as originated from the same outbreaks or the collection from the same facilities
-
-ht <- 0.004
-
-si <- sel_rep_iso(lm_dat, ht) ### select representative isolates
-
-query <- lm_dat %>%
-  select(starts_with(loci_start_with)) %>%
-  mutate_if(is.integer, coalesce, 0L) %>% # integer "LMOxxxxx" as integer (52.59%) performs similar to "LMOxxxxx" as factor (51.85%)
-  mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
+query <- read.csv(opt$query) %>%
+  mutate_all(~ ifelse(is.na(.), 0, .)) %>%
+  mutate(across(everything(), ~ as.factor(as.character(.x)))) %>%
   as.data.frame() # rfsrc() doesn't work with a tibble
-query <- query[1,]; print("DEBUG: using first row of spreadsheet as query"); 
 
 m <- readRDS(model_filename)
 
@@ -83,3 +73,4 @@ for (col in grep(loci_start_with, names(query_filtered_cols))) {
 pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
 print(pred$predicted)
+
