@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(dendextend))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(logger))
 
 # Get the script name from command-line arguments
 cli_args <- commandArgs(trailingOnly = FALSE)
@@ -43,7 +44,7 @@ bootstrap_folder <- opt$output
 
 ncores <- opt$threads
 bootstrap_reps <- opt$bootstraps 
-print(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
+log_info(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
 
 orgOpt <- options()
 options(browser = 'firefox') 
@@ -51,12 +52,12 @@ options(rf.cores=ncores,mc.cores=ncores)
 #options(rf.cores=orgOpt$rf.cores,mc.cores=orgOpt$mc.cores)
 
 loci_start_with <- opt$'starts-with'
-print(paste0("Loci start with ",loci_start_with))
+log_info(paste0("Loci start with ",loci_start_with))
 
 functions_script <- file.path(script_dir, "wgMLST_funs_update.R")
 source(functions_script)
 
-print(paste0("Getting the MLST profiles from ",opt$input))
+log_info(paste0("Getting the MLST profiles from ",opt$input))
 lm_dat <- read.csv(opt$'input', header = TRUE)
 # This is used in the sel_rep_iso function to select representative isolates
 cgmlst_loci <- read.csv(opt$'core-loci') %>% names
@@ -72,7 +73,7 @@ si <- sel_rep_iso(lm_dat, ht) ### select representative isolates
 ###################################################################
 #  importance of genes from random forest model based on all genes
 ###################################################################
-print(paste0("Filtering input data to remove nearly duplicate profiles and to just view relevant loci"))
+log_info(paste0("Filtering input data to remove nearly duplicate profiles and to just view relevant loci"))
 train.df.all <- lm_dat %>%
   filter(SRR_ID %in% si) %>%
   select("food", starts_with(loci_start_with)) %>%
@@ -85,19 +86,19 @@ train.df.all <- lm_dat %>%
 if(!dir.exists(bootstrap_folder)){
   dir.create(bootstrap_folder)
 }
-print(paste0("Running bootstraps and saving them to ", bootstrap_folder, "/*.rds"))
+log_info(paste0("Running bootstraps and saving them to ", bootstrap_folder, "/*.rds"))
 # Set the inital seed for RF models
 my_seed <- opt$seed
 for (i in 1:bootstrap_reps){
   #my_seed <- sample(1:as.integer(.Machine$integer.max))
-  print(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
+  log_info(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
   model <- rfsrc(food ~ ., train.df.all, importance = T, seed = my_seed) #
 
   # Save intermediate results
   # TODO in the future in might be nice to save the filename with the random seed or a hash
   # so that we can just add more bootstraps if needed
   filename <- paste0(bootstrap_folder,"/bs", my_seed, ".rds")
-  print(paste0("Saving bootstrap", i, " to ", filename))
+  log_info(paste0("Saving bootstrap", i, " to ", filename))
   saveRDS(model, file = filename)
 
   # Free up memory

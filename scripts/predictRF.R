@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(gt))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(logger))
 
 cli_args <- commandArgs(trailingOnly = FALSE)
 script_arg <- grep("--file=", cli_args, value = TRUE)
@@ -36,8 +37,8 @@ for (o in required_options) {
 ncores <- opt$threads
 
 model_filename <- opt$model
-#print(paste0("Running with ",ncores," cores."))
-#print(paste0("Will read model: ", model_filename))
+log_info(paste0("Running with ",ncores," cores."))
+log_info(paste0("Will read model: ", model_filename))
 
 orgOpt <- options()
 options(browser = 'firefox') 
