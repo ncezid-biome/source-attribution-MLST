@@ -21,6 +21,7 @@ Requires R and the following libraries:
 * optparse
 * randomForestSRC
 * tidyverse
+* logger
 
 ## Usage
 
