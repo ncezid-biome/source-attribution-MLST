@@ -19,11 +19,12 @@ script_dir <- dirname(script_name_absolute)
 option_list <- list(
     make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),
     make_option(c("-o", "--output"), type = "character", help = "Directory of bootstrap random forest models to output"),
-    make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet", default = "food"),
+    make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet. Default:food", default = "food"),
     make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input."),
-    make_option(c("-s", "--starts-with"), type = "character", help = "The prefix of all independent variables.", default = "LMO"),
+    make_option(c("", "--starts-with"), type = "character", help = "The prefix of all independent variables. Default:LMO", default = "LMO"),
+    make_option(c("", "--seed"), type = "integer", help = "Random seed. Default:23", default = 23),
     make_option(c("-b", "--bootstraps"), type = "integer", help = "How many random forest bootstraps to output", default = 1),
-    make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use", default = 1)
+    make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default:1", default = 1)
 )
 opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -77,6 +78,7 @@ train.df.all <- lm_dat %>%
   select("food", starts_with(loci_start_with)) %>%
   mutate_if(is.integer, coalesce, 0L) %>% # integer "LMOxxxxx" as integer (52.59%) performs similar to "LMOxxxxx" as factor (51.85%)
   mutate(across(starts_with(loci_start_with), ~ as.factor(as.character(.x)))) %>%
+  mutate(food = as.factor(as.character(food))) %>%
   as.data.frame() # rfsrc() doesn't work with a tibble
 
 # Bootstrapping
@@ -84,18 +86,25 @@ if(!dir.exists(bootstrap_folder)){
   dir.create(bootstrap_folder)
 }
 print(paste0("Running bootstraps and saving them to ", bootstrap_folder, "/*.rds"))
+# Set the inital seed for RF models
+my_seed <- opt$seed
 for (i in 1:bootstrap_reps){
-  print(paste0("Modeling rep ", i, "..."))
-  model <- rfsrc(food ~ ., train.df.all, importance = T ) #
+  #my_seed <- sample(1:as.integer(.Machine$integer.max))
+  print(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
+  model <- rfsrc(food ~ ., train.df.all, importance = T, seed = my_seed) #
 
   # Save intermediate results
   # TODO in the future in might be nice to save the filename with the random seed or a hash
   # so that we can just add more bootstraps if needed
-  filename <- paste0(bootstrap_folder,"/bs", i, ".rds")
+  filename <- paste0(bootstrap_folder,"/bs", my_seed, ".rds")
   print(paste0("Saving bootstrap", i, " to ", filename))
   saveRDS(model, file = filename)
 
   # Free up memory
-  rm(model)
+  #rm(model)
+  
+  # Next seed: it's not perfect but just increment the seed
+  my_seed <- my_seed +1
+  set.seed(my_seed)
 }
 
