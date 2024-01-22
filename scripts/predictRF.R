@@ -2,7 +2,6 @@
 suppressPackageStartupMessages(library(cluster))
 suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(ape))
-suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(gt))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
@@ -37,8 +36,8 @@ for (o in required_options) {
 ncores <- opt$threads
 
 model_filename <- opt$model
-print(paste0("Running with ",ncores," cores."))
-print(paste0("Will read model: ", model_filename))
+#print(paste0("Running with ",ncores," cores."))
+#print(paste0("Will read model: ", model_filename))
 
 orgOpt <- options()
 options(browser = 'firefox') 
@@ -72,5 +71,17 @@ for (col in grep(loci_start_with, names(query_filtered_cols))) {
 # Make predictions
 pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
-print(pred$predicted)
+#print(pred$predicted)
+
+#cat(paste(names(pred$predicted), collapse="\t"))
+#cat("\n")
+#cat(paste(pred$predicted, collapse="\t"))
+#cat("\n")
+
+write.table(pred$predicted,
+            file = stdout(),
+            sep  = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE )
 
