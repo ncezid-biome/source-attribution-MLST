@@ -14,7 +14,7 @@ suppressPackageStartupMessages(library("tidyverse"))
 test_that("Prediction on LMO0003 with example_query", {
   option_list <- list(
       make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file", default = "test-results/bs23.rds"),
-      make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.", default = "../../data/example_query.csv"),
+      make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.", default = "example_query.csv"),
       make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default: 1", default = 1)
   )
   opt_parser <- OptionParser(option_list = option_list)
