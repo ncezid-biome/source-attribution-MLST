@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(wgs_food_sourceR)
+library(sourcerer)
 
-test_check("wgs_food_sourceR")
+test_check("sourcerer")
