@@ -16,17 +16,106 @@ Requires R and `devtools`
 devtools::install_github("ncezid-biome/source-attribution-MLST")
 ```
 
+To install the executable scripts, locate where they were installed,
+e.g., `$HOME/R/4/3.2/sourcerer`, and update your `PATH`.
+In Linux, it looks like this:
+
+```shell
+# Find the installation
+find ~ -type d -name sourcerer
+# => assume the path is $HOME/R/4/3.2/sourcerer for this example
+export PATH=$PATH:$HOME/R/4/3.2/sourcerer/exec
+# Double check the installation with the which command
+which bootstrapRF.R
+which predictRF.R
+
+```
+
+
 ## Usage
 
-First, create a model or models with `Rscript bootstrapRF.R`.
-Then, query the model with `Rscript predictRF.R`.
+You can use this package either with the executable Rscripts
+or via the API.
+
+Either way, first, create a model or models with `bootstrapping()` or  `Rscript bootstrapRF.R`.
+Then, query the model with `prediction()` or `Rscript predictRF.R`.
 
 Creating a model is done with a "bootstrap" because it represents only one
 outcome out of all the stochatic outcomes in the random forest model.
 Therefore, the usage is to create many models and then run prediction
 on many models to get an aggregated outcome.
 
-### Examples
+### Examples with API
+
+```R
+library("sourcerer")
+
+# Command line argument parsing
+option_list <- list(
+    make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),
+    make_option(c("-o", "--output"), type = "character", help = "Directory of bootstrap random forest models to output", default = "results"),
+    make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet. Default:food", default = "food"),
+    make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input."),
+    make_option(c("", "--starts-with"), type = "character", help = "The prefix of all independent variables. Default:LMO", default = "LMO"),
+    make_option(c("", "--seed"), type = "integer", help = "Random seed. Default:23", default = 23),
+    make_option(c("-b", "--bootstraps"), type = "integer", help = "How many random forest bootstraps to output", default = 1),
+    make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default:1", default = 1)
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# required options
+required_options <- c("input", "output", "core-loci")
+for (o in required_options) {
+  if (!(o %in% names(opt))) {
+    cat("ERROR: Required option", o, "is missing.\n")
+    print_help(opt_parser)
+    q(status = 1)
+  }
+}
+
+# On second thought, get 10 bootstraps instead of the default of 1
+opt$bootstraps <- 10
+
+# Slow RF modeling step
+rf_filenames <- bootstrapping(opt)
+
+
+# Start on the prediction step
+option_list <- list(
+    make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file"),
+    make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome."),
+    make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default: 1", default = 1)
+)
+opt_parser <- OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
+# Change the model filenames to the ones you already have
+opt$model <- rf_filenames
+
+# required options
+required_options <- c("model", "query")
+for (o in required_options) {
+  if (!(o %in% names(opt))) {
+    cat("ERROR: Required option", o, "is missing.\n")
+    print_help(opt_parser)
+    q(status = 1)
+  }
+}
+
+pred <- prediction(opt)
+
+# Print the first prediction table
+write.table(pred[[1]]$predicted,
+            file = stdout(),
+            sep  = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE )
+
+```
+
+### Examples with executable scripts
 
 #### Basic example
 
