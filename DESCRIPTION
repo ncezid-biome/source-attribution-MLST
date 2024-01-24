@@ -1,0 +1,31 @@
+Package: wgs_food_sourceR
+Title: Predicts Food Source from an MLST Profile
+Version: 0.1.0
+Authors@R: c(
+      person("Lee", "Katz", , "gzu2@cdc.gov", role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0002-2533-9161")),
+      person("Zhaohui", "Cui", , "nyv5@cdc.gov", role = c("aut", "cre"),
+             comment = c(ORCID = ""))
+  )
+Description: This package reads whole genome multilocus sequence typing (wgMLST) profiles with food sources to create a random forest (RF) model. Then, another wgMLST profile can query the model to yield a prediction of which food source it might have come from.
+License: `use_mit_license()`
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+URL: https://github.com/ncezid-biome/source-attribution-MLST
+BugReports: https://github.com/ncezid-biome/source-attribution-MLST/issues
+Imports:
+  ape,
+  cluster,
+  data.table,
+  dendextend,
+  dplyr,
+  logger,
+  gt,
+  optparse,
+  randomForestSRC,
+  tidyverse
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
