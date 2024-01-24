@@ -7,6 +7,13 @@
 #'
 #' @examples TODO
 #' See [inst/bootstrapRF.R]
+#'
+#' @import cluster
+#' @import dplyr
+#' @importFrom stats cutree hclust quantile rmultinom sd xtabs
+#' @importFrom utils read.csv write.table
+#' @importFrom magrittr `%>%`
+#' @import ggplot2
 bootstrapping <- function(opt) {
 
   bootstrap_folder <- opt$output
