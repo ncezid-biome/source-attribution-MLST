@@ -29,5 +29,12 @@ for (o in required_options) {
   }
 }
 
-prediction(opt)
+pred <- prediction(opt)
+
+write.table(pred$predicted,
+            file = stdout(),
+            sep  = "\t",
+            quote = FALSE,
+            row.names = FALSE,
+            col.names = TRUE )
 
