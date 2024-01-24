@@ -1,0 +1,38 @@
+Package: sourcerer
+Title: Predicts Food Source from an MLST Profile
+Version: 0.1.0
+Authors@R: c(
+      person("Lee", "Katz", email = "gzu2@cdc.gov", role = c("aut", "cre"),
+             comment = c(ORCID = "0000-0002-2533-9161")),
+      person("Zhaohui", "Cui", email = "nyv5@cdc.gov", role = c("aut"),
+             comment = c(ORCID = "")),
+      person("Sean", "Browning", email = "oet5@cdc.gov", role = c("aut"),
+             comment = c(ORCID = ""))
+  )
+Description: This package reads whole genome multilocus sequence
+    typing profiles with food sources to create a random
+    forest model. Then, another wgMLST profile can query the
+    model to yield a prediction of which food source it might have
+    come from.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+URL: https://github.com/ncezid-biome/source-attribution-MLST
+BugReports: https://github.com/ncezid-biome/source-attribution-MLST/issues
+Imports:
+  ape,
+  cluster,
+  data.table,
+  dendextend,
+  dplyr,
+  ggplot2,
+  logger,
+  gt,
+  magrittr,
+  optparse,
+  randomForestSRC,
+  tidyverse
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

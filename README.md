@@ -10,23 +10,21 @@ The manuscript can be found at <https://doi.org/10.1089/fpd.2023.0046>.
 
 ## Installation
 
-Requires R and the following libraries:
+Requires R and `devtools`
 
-* ape
-* cluster
-* data.table
-* dendextend
-* optparse
-* gt
-* optparse
-* randomForestSRC
-* tidyverse
-* logger
+```shell
+devtools::install_github("ncezid-biome/source-attribution-MLST")
+```
 
 ## Usage
 
 First, create a model or models with `Rscript bootstrapRF.R`.
 Then, query the model with `Rscript predictRF.R`.
+
+Creating a model is done with a "bootstrap" because it represents only one
+outcome out of all the stochatic outcomes in the random forest model.
+Therefore, the usage is to create many models and then run prediction
+on many models to get an aggregated outcome.
 
 ### Examples
 
