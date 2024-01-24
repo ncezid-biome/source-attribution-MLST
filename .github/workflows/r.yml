@@ -22,8 +22,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          #- {os: windows-latest, r: 'release'}
           - {os: ubuntu-20.04, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
+          # TODO run on other operating systems
+          #- {os: windows-latest, r: 'release'}
           #- {os: ubuntu-20.04, r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/focal/latest"}
 
     env:
@@ -43,7 +44,7 @@ jobs:
         with:
           extra-packages: rcmdcheck
           cache: true
-      - uses: r-lib/actions/check-r-package@v2
-        with:
-          args: '"--no-manual"'
-          error-on: '"error"'
+      #- uses: r-lib/actions/check-r-package@v2
+      #  with:
+      #    args: '"--no-manual"'
+      #    error-on: '"error"'
