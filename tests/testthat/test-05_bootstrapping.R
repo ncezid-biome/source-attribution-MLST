@@ -16,10 +16,10 @@ test_that("Bootstrapping on LMO0003", {
   # Actually run the options but accept some slightly modified defaults.
   # Therefore, all options have been set without user input.
   option_list <- list(
-      optparse::make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format.", default = "../../data/isolates_original_plus_new_dec_1_2021.csv.gz"),
+      optparse::make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format.", default = "isolates_original_plus_new_dec_1_2021.csv.gz"),
       optparse::make_option(c("-o", "--output"), type = "character", help = "Directory of bootstrap random forest models to output", default = "test-results"),
       optparse::make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet. Default:food", default = "food"),
-      optparse::make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input.", default = "../../data/cgMLST_loci.csv"),
+      optparse::make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input.", default = "cgMLST_loci.csv"),
       optparse::make_option(c("", "--starts-with"), type = "character", help = "The prefix of all independent variables. Default:LMO", default = "LMO0003"),
       optparse::make_option(c("", "--seed"), type = "integer", help = "Random seed. Default:23", default = 23),
       optparse::make_option(c("-b", "--bootstraps"), type = "integer", help = "How many random forest bootstraps to output", default = 3),
@@ -39,6 +39,8 @@ test_that("Bootstrapping on LMO0003", {
   rf      <- list()
   rf[[1]] <- readRDS(filenames[[1]])
   expect_equal(rf[[1]]$forest$n, 719, info = "Number of alleles in the first RF model")
+  expect_equal(rf[[1]]$forest$yvar.names, "food", info = "yvar in the first RF model")
+  expect_equal(rf[[1]]$importance["LMO00030", "all"], 0.07586199, tolerance = 0.01, info = "importance of LMO00030 in the all category")
 
 })
 
