@@ -35,6 +35,7 @@ prediction <- function(opt) {
 
   # Make predictions
   pred <- predict.rfsrc(m, newdata = query_filtered_cols)
+  return(pred)
 
   write.table(pred$predicted,
               file = stdout(),

@@ -4,7 +4,7 @@ bootstrapping <- function(opt) {
 
   ncores <- opt$threads
   bootstrap_reps <- opt$bootstraps 
-  log_info(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
+  logger::log_info(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
 
   orgOpt <- options()
   options(browser = 'firefox') 
@@ -12,9 +12,9 @@ bootstrapping <- function(opt) {
   #options(rf.cores=orgOpt$rf.cores,mc.cores=orgOpt$mc.cores)
 
   loci_start_with <- opt$'starts-with'
-  log_info(paste0("Loci start with ",loci_start_with))
+  logger::log_info(paste0("Loci start with ",loci_start_with))
 
-  log_info(paste0("Getting the MLST profiles from ",opt$input))
+  logger::log_info(paste0("Getting the MLST profiles from ",opt$input))
   lm_dat <- read.csv(opt$'input', header = TRUE)
   # This is used in the sel_rep_iso function to select representative isolates
   cgmlst_loci <- read.csv(opt$'core-loci') %>% names
@@ -46,6 +46,7 @@ bootstrapping <- function(opt) {
   log_info(paste0("Running bootstraps and saving them to ", bootstrap_folder, "/*.rds"))
   # Set the inital seed for RF models
   my_seed <- opt$seed
+  my_file_stat <- list()
   for (i in 1:bootstrap_reps){
     #my_seed <- sample(1:as.integer(.Machine$integer.max))
     log_info(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
@@ -64,7 +65,11 @@ bootstrapping <- function(opt) {
     # Next seed: it's not perfect but just increment the seed
     my_seed <- my_seed +1
     set.seed(my_seed)
+
+    my_file_stat[[i]] <- file.info(filename)
   }
+
+  return(my_file_stat)
 
 }
 

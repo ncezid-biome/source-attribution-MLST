@@ -1,0 +1,106 @@
+suppressPackageStartupMessages(library("cluster"))
+suppressPackageStartupMessages(library("ape"))
+suppressPackageStartupMessages(library("cluster"))
+suppressPackageStartupMessages(library("data.table"))
+suppressPackageStartupMessages(library("dendextend"))
+suppressPackageStartupMessages(library("dplyr"))
+suppressPackageStartupMessages(library("logger"))
+suppressPackageStartupMessages(library("gt"))
+suppressPackageStartupMessages(library("optparse"))
+suppressPackageStartupMessages(library("randomForestSRC"))
+suppressPackageStartupMessages(library("tidyverse"))
+
+
+test_that("Prediction on LMO0003 with example_query", {
+  option_list <- list(
+      make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file", default = "test-results/bs23.rds"),
+      make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.", default = "../../data/example_query.csv"),
+      make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default: 1", default = 1)
+  )
+  opt_parser <- OptionParser(option_list = option_list)
+  opt <- parse_args(opt_parser)
+
+
+  pred <- prediction(opt)
+  my_table <- pred$predicted
+  #print(my_table)
+
+  #message("====")
+  #message(colnames(my_table))
+  #message(my_table[,"dairy"])
+  #message("----")
+  
+  expect_equal(sort(colnames(my_table)), sort(c("dairy", "meat", "vegetable", "fruit", "seafood")), expected.label = "column names on the prediction table")
+
+  # Dairy
+  obs <- round(my_table[,"dairy"],3) + 0
+  exp <- round(0.1508644,3) + 0
+  names(obs) <- "dairy"
+  names(exp) <- "dairy"
+
+  expect_equal(
+               obs,
+               exp,
+               info = "Test for dairy percentage",
+               label = paste0("Observed dairy percentage (", obs, ")"),
+               expected.label = paste0("Expected dairy percentage (", exp, ")")
+               )
+
+  # Meat
+  obs <- round(my_table[,"meat"],3) + 0
+  exp <- round(0.3109127,3) + 0
+  names(obs) <- "meat"
+  names(exp) <- "meat"
+
+  expect_equal(
+               obs,
+               exp,
+               info = "Test for meat percentage",
+               label = paste0("Observed meat percentage (", obs, ")"),
+               expected.label = paste0("Expected meat percentage (", exp, ")")
+               )
+
+  # Vegetable
+  obs <- round(my_table[,"vegetable"],3) + 0
+  exp <- round(0.2108486,3) + 0
+  names(obs) <- "vegetable"
+  names(exp) <- "vegetable"
+
+  expect_equal(
+               obs,
+               exp,
+               info = "Test for vegetable percentage",
+               label = paste0("Observed vegetable percentage (", obs, ")"),
+               expected.label = paste0("Expected vegetable percentage (", exp, ")")
+               )
+
+  # Fruit
+  obs <- round(my_table[,"fruit"],3) + 0
+  exp <- round(0.1569874,3) + 0
+  names(obs) <- "fruit"
+  names(exp) <- "fruit"
+
+  expect_equal(
+               obs,
+               exp,
+               info = "Test for fruit percentage",
+               label = paste0("Observed fruit percentage (", obs, ")"),
+               expected.label = paste0("Expected fruit percentage (", exp, ")")
+               )
+
+  # Seafood
+  obs <- round(my_table[,"seafood"],3) + 0
+  exp <- round(0.1703869,3) + 0
+  names(obs) <- "seafood"
+  names(exp) <- "seafood"
+
+  expect_equal(
+               obs,
+               exp,
+               info = "Test for seafood percentage",
+               label = paste0("Observed seafood percentage (", obs, ")"),
+               expected.label = paste0("Expected seafood percentage (", exp, ")")
+               )
+
+})
+

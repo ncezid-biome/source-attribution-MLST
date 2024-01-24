@@ -86,7 +86,6 @@ suppressPackageStartupMessages(library(dendextend))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(logger))
-suppressPackageStartupMessages(library(here))
 
 devtools::load_all()
 
