@@ -29,28 +29,16 @@ test_that("Bootstrapping on LMO0003", {
   opt <- optparse::parse_args(opt_parser)
 
 
-  file_stat <- bootstrapping(opt)
-  file_stat <- list()
-  for(filename in c("test-results/bs23.rds", "test-results/bs24.rds", "test-results/bs25.rds")){
-    file_stat <- c(file_stat, list(file.info(filename)))
-  }
+  filenames <- bootstrapping(opt)
 
-  # Assuming file_stat is the list obtained from your previous code
-  file_sizes <- sapply(file_stat, function(info) info$size)
+  expect_equal(filenames[[1]], "test-results/bs23.rds", info = "Filename 1")
+  expect_equal(filenames[[2]], "test-results/bs24.rds", info = "Filename 2")
+  expect_equal(filenames[[3]], "test-results/bs25.rds", info = "Filename 3")
 
-  # Expected file sizes
-  expected_sizes <- c(5052380, 5055516, 5047648)
 
-  # Test file sizes using expect_equal
-  for (i in seq_along(file_sizes)) {
-    obs <- as.numeric(file_sizes[i])
-    exp <- as.numeric(expected_sizes[i])
-
-    expect_equal(obs, exp,
-                 tolerance = 0.99,
-                 #info = paste("File:", names(file_sizes)[i]),
-                 label = "File Size")
-  }
+  rf      <- list()
+  rf[[1]] <- readRDS(filenames[[1]])
+  expect_equal(rf[[1]]$forest$n, 719, info = "Number of alleles in the first RF model")
 
 })
 

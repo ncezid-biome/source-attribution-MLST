@@ -2,7 +2,7 @@
 #'
 #' @param opt A set of options from optparse
 #'
-#' @return my_file_stat A list of the output of `file.info` on bootstrap rds files
+#' @return my_filenames A list of random forest filenames
 #' @export
 #'
 #' @examples TODO
@@ -62,7 +62,7 @@ bootstrapping <- function(opt) {
   log_info(paste0("Running bootstraps and saving them to ", bootstrap_folder, "/*.rds"))
   # Set the inital seed for RF models
   my_seed <- opt$seed
-  my_file_stat <- list()
+  my_filenames <- list()
   for (i in 1:bootstrap_reps){
     #my_seed <- sample(1:as.integer(.Machine$integer.max))
     log_info(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
@@ -82,10 +82,10 @@ bootstrapping <- function(opt) {
     my_seed <- my_seed +1
     set.seed(my_seed)
 
-    my_file_stat[[i]] <- file.info(filename)
+    my_filenames[[i]] <- filename
   }
 
-  return(my_file_stat)
+  return(my_filenames)
 
 }
 
