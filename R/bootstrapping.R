@@ -1,3 +1,12 @@
+#' bootstrapping
+#'
+#' @param opt A set of options from optparse
+#'
+#' @return my_file_stat A list of the output of `file.info` on bootstrap rds files
+#' @export
+#'
+#' @examples TODO
+#' See [inst/bootstrapRF.R]
 bootstrapping <- function(opt) {
 
   bootstrap_folder <- opt$output

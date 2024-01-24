@@ -1,4 +1,12 @@
-
+#' prediction 
+#'
+#' @param opt A set of options from optparse
+#'
+#' @return prediction The prediction object from `predict.rfsrc()`
+#' @export
+#'
+#' @examples 
+#' See [inst/bootstrapRF.R]
 prediction <- function(opt) {
   ncores <- opt$threads
 

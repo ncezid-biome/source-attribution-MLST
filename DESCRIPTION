@@ -12,7 +12,7 @@ Description: This package reads whole genome multilocus sequence
     forest model. Then, another wgMLST profile can query the
     model to yield a prediction of which food source it might have
     come from.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
