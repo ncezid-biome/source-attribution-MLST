@@ -208,3 +208,25 @@ Options:
                 Show this help message and exit
 ```
 
+## Aggregating the data
+
+For a given query, each random forest model can yield a different outcome.
+Therefore, you need to aggregate results across these bootstraps.
+
+Here is one method as an example that finds the mean for each category 
+on the command line.
+
+```shell
+\ls tests/testthat/test-results/*.rds | xargs -n 1 -P 1 Rscript exec/predictRF.R --query data/example_query.csv --threads 4 --model | grep -v dairy | datamash mean 1 mean 2 mean 3 mean 4 mean 5 | column -t
+ℹ Loading sourcerer
+ℹ Loading sourcerer
+ℹ Loading sourcerer
+INFO [2024-01-24 14:19:38] Running with 4 cores.
+INFO [2024-01-24 14:19:38] Will read model: tests/testthat/test-results/bs23.rds
+INFO [2024-01-24 14:19:38] Running with 4 cores.
+INFO [2024-01-24 14:19:38] Will read model: tests/testthat/test-results/bs24.rds
+INFO [2024-01-24 14:19:38] Running with 4 cores.
+INFO [2024-01-24 14:19:38] Will read model: tests/testthat/test-results/bs25.rds
+0.15012679321561  0.15789806734794  0.31114043339838  0.16977994687198  0.21105475916609
+```
+
