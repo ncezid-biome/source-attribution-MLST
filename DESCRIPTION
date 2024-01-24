@@ -5,6 +5,8 @@ Authors@R: c(
       person("Lee", "Katz", email = "gzu2@cdc.gov", role = c("aut", "cre"),
              comment = c(ORCID = "0000-0002-2533-9161")),
       person("Zhaohui", "Cui", email = "nyv5@cdc.gov", role = c("aut"),
+             comment = c(ORCID = "")),
+      person("Sean", "Browning", email = "oet5@cdc.gov", role = c("aut"),
              comment = c(ORCID = ""))
   )
 Description: This package reads whole genome multilocus sequence
@@ -24,8 +26,10 @@ Imports:
   data.table,
   dendextend,
   dplyr,
+  ggplot2,
   logger,
   gt,
+  magrittr,
   optparse,
   randomForestSRC,
   tidyverse
