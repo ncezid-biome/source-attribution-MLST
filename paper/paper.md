@@ -16,8 +16,9 @@ authors:
     orcid: 0000-0002-2533-9161
 affiliations:
   - name: Division of Foodborne, Waterborne, and Environmental Diseases (DFWED), National Center for Emerging and Zoonotic Infectious Diseases (NCEZID), Centers for Disease Control and Prevention, Atlanta, GA, United States of America
-   index: 1
+    index: 1
   - name: Office of the Director, National Center for Emerging and Zoonotic Infectious Diseases (NCEZID), Centers for Disease Control and Prevention, Atlanta, GA, United States of America
+    index: 2
 bibliography: paper.bib
 ---
 
