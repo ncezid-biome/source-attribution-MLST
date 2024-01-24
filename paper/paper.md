@@ -27,7 +27,7 @@ bibliography: paper.bib
 Every year, the United States experiences hundreds or thousands of
 foodborne outbreaks [@dewey2016foodborne].
 However, a large percentage of bacterial foodborne outbreaks are
-caused unknown etiology [@10.1093/cid/ciab771].
+caused by unknown etiology [@10.1093/cid/ciab771].
 However, with the advent of real time genome sequencing surveillance,
 genomes for foodborne outbreaks are readily available [@jackson2016implementation].
 It has been shown that using a random forest (RF) model
@@ -36,6 +36,33 @@ Therefore we have created a RF package in the R language
 to help predict food sources from pathogenic bacterial genomes.
 
 ## Implementation
+
+We divide the implementation into two parts:
+creation of the RF model and
+predicting from the RF model with a query.
+Both steps have the `randomForestSRC` package at
+the core [@ishwaran2022randomforestsrc].
+
+With a spreadsheet of MLST profiles and observed food sources,
+a RF model is created with `bootstrapping()`.
+Because RF is a stochastic process, it is good practice
+to create many RF models with different seeds.
+
+Next, `prediction()` is called with a query MLST profile
+and one of the RF models.
+This yields percentages of how confident the model is
+that the query comes from any one food source.
+The current food sources in the example data are:
+dairy, fruit, meat, seafood, and vegetable.
+However, a user could potentially have different
+input data for the model in the `bootstrapping()` step.
+
+If many bootstrap RF models are available, then `prediction()`
+can be called on each one, and the predictions can be
+aggregated through, e.g., averages and standard deviations.
+
+The main functions are also implemented in command line
+scripts `bootstrapRF.R` and `predictionRF.R`.
 
 ## Conclusions
 
