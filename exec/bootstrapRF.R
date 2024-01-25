@@ -87,8 +87,6 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(logger))
 
-devtools::load_all()
-
 # Command line argument parsing
 option_list <- list(
     make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),
@@ -113,5 +111,14 @@ for (o in required_options) {
   }
 }
 
-bootstrapping(opt)
+sourcerer::bootstrapping(
+  input = opt$input,
+  output = opt$output,
+  core_loci = opt[["core-loci"]],
+  dependent = opt$dependent,
+  var_prefix = opt[["starts-with"]],
+  seed = opt$seed,
+  bootstraps = opt$bootstraps,
+  ncores = opt$threads
+)
 
