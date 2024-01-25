@@ -1,4 +1,9 @@
-url: https://beansrowning.github.io/source-attribution-MLST/
+url: https://ncezid-biome.github.io/source-attribution-MLST/
 template:
   bootstrap: 5
-
+reference:
+  - title:  Core Functions
+  - desc: Standard functions to compute source attribution
+  - contents:
+    - prediction
+    - bootstrapping
