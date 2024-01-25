@@ -41,15 +41,15 @@ prediction <- function(opt) {
   }
 
   # Make predictions
-  pred <- predict.rfsrc(m, newdata = query_filtered_cols)
-  return(pred)
+  pred <- randomForestSRC::predict.rfsrc(m, newdata = query_filtered_cols)
 
   write.table(pred$predicted,
               file = stdout(),
               sep  = "\t",
               quote = FALSE,
               row.names = FALSE,
-              col.names = TRUE )
+              col.names = TRUE)
 
+  return(pred)
 }
 
