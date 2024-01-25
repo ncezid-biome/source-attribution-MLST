@@ -1,7 +1,10 @@
 #' Bootstrap random forest analysis
 #' 
 #' This function creates one or more random forest models from a spreadsheet of MLST profiles.
-#'
+#' In many situations, you would want to make 
+#' many random forest models and make predictions from
+#' each one downstream. 
+#' 
 #' @param input A character string specifying the input file path for MLST profile data in csv or csv.gz format.
 #' @param output A character string specifying the output directory for random forest models.
 #' @param core_loci A csv or csv.gz file with a comma-separated list of core loci to help remove duplicate isolates.
