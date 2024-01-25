@@ -2,6 +2,8 @@ results/*
 
 .R*
 *.R[a-zA-Z0-9]*
+# Not ignoring man files
+!man/*.Rd
 
 *.sw[op]
 
