@@ -1,16 +1,29 @@
-#' prediction 
+#' Predict using a random forest model
+#' 
+#' This function makes predictions using a random forest model.
+#' In many situations, you would want to make predictions from
+#' many random forest models and aggregate them downstream. 
 #'
-#' @param opt A set of options from optparse
+#' @param model_filename A character string specifying the filename of the Random Forest model.
+#' @param query A character string specifying the filename of the query data in CSV format.
+#'   This is an MLST profiles spreadsheet.
+#' @param ncores An integer specifying the number of cores to use for parallel processing.
 #'
 #' @return prediction The prediction object from `predict.rfsrc()`
+#' 
 #' @export
 #'
 #' @examples 
-#' See [inst/bootstrapRF.R]
-prediction <- function(opt) {
-  ncores <- opt$threads
-
-  model_filename <- opt$model
+#' \dontrun{
+#' # Example usage:
+#' result <- prediction(model_filename = "results/bs23.rds",
+#'                      query = "tests/testthat/example_query.csv", ncores = 4)
+#' }
+#' 
+#' @importFrom utils read.csv write.table
+#' @importFrom magrittr `%>%`
+#' @import randomForestSRC predict.rfsrc
+prediction <- function(model_filename, query, ncores) {
   log_info(paste0("Running with ",ncores," cores."))
   log_info(paste0("Will read model: ", model_filename))
 
@@ -20,7 +33,7 @@ prediction <- function(opt) {
 
   loci_start_with <- "LMO"
 
-  query <- read.csv(opt$query) %>%
+  query <- read.csv(query) %>%
     mutate_all(~ ifelse(is.na(.), 0, .)) %>%
     mutate(across(everything(), ~ as.factor(as.character(.x)))) %>%
     as.data.frame() # rfsrc() doesn't work with a tibble

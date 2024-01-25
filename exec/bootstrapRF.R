@@ -113,5 +113,8 @@ for (o in required_options) {
   }
 }
 
-bootstrapping(opt)
+bootstrapping(input = opt$input, output = opt$output, core_loci = opt$'core-loci',
+              ncores = opt$threads, bootstrap_reps = opt$bootstraps,
+              loci_start_with = opt$'starts-with', my_seed = opt$seed )
+
 
