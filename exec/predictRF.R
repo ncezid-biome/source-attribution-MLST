@@ -9,8 +9,6 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(logger))
 
-devtools::load_all()
-
 # Command line argument parsing
 option_list <- list(
     make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file"),
@@ -30,14 +28,5 @@ for (o in required_options) {
   }
 }
 
-pred <- prediction(model_filename = opt$model, 
+sourcerer::prediction(model_filename = opt$model, 
                   query = opt$query, ncores = opt$threads)
-
-
-write.table(pred$predicted,
-            file = stdout(),
-            sep  = "\t",
-            quote = FALSE,
-            row.names = FALSE,
-            col.names = TRUE )
-
