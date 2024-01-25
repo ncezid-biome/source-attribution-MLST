@@ -7,7 +7,7 @@ Authors@R: c(
       person("Zhaohui", "Cui", email = "nyv5@cdc.gov", role = c("aut"),
              comment = c(ORCID = "")),
       person("Sean", "Browning", email = "oet5@cdc.gov", role = c("aut"),
-             comment = c(ORCID = ""))
+             comment = c(ORCID = "0000-0002-4580-1843"))
   )
 Description: This package reads whole genome multilocus sequence
     typing profiles with food sources to create a random
@@ -18,7 +18,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
-URL: https://github.com/ncezid-biome/source-attribution-MLST
+URL: https://ncezid-biome.github.io/source-attribution-MLST
 BugReports: https://github.com/ncezid-biome/source-attribution-MLST/issues
 Imports:
   ape,
@@ -36,4 +36,3 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-
