@@ -8,7 +8,7 @@ tags:
 authors:
   - name: Zhaohui Cui
     affiliation: 1
-  - name: Sean Browning
+  - name: Sean D. Browning
     affiliation: 2
     orcid: 0000-0002-4580-1843
   - name: Lee S. Katz
@@ -28,7 +28,7 @@ Every year, the United States experiences hundreds or thousands of
 foodborne outbreaks [@dewey2016foodborne].
 However, a large percentage of bacterial foodborne outbreaks are
 caused by unknown etiology [@10.1093/cid/ciab771].
-However, with the advent of real time genome sequencing surveillance,
+With the advent of real time genome sequencing surveillance,
 genomes for foodborne outbreaks are readily available [@jackson2016implementation].
 It has been shown that using a random forest (RF) model
 can help lend some predictability to finding food sources [@gu2023predicting].
