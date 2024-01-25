@@ -28,17 +28,9 @@ test_that("Bootstrapping on LMO0003", {
   opt_parser <- optparse::OptionParser(option_list = option_list)
   opt <- optparse::parse_args(opt_parser)
 
-
-  filenames <- bootstrapping(
-    input = opt$input,
-    output = opt$output,
-    core_loci = opt[["core-loci"]],
-    dependent = opt$dependent,
-    var_prefix = opt[["starts-with"]],
-    seed = opt$seed,
-    bootstraps = opt$bootstraps,
-    ncores = opt$threads
-  )
+  filenames <- bootstrapping(input = opt$input, output = opt$output, core_loci = opt$'core-loci',
+                  ncores = opt$threads, bootstrap_reps = opt$bootstraps,
+                  loci_start_with = opt$'starts-with', my_seed = opt$seed )
 
   expect_equal(filenames[[1]], "test-results/bs23.rds", info = "Filename 1")
   expect_equal(filenames[[2]], "test-results/bs24.rds", info = "Filename 2")

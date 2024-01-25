@@ -20,16 +20,10 @@ test_that("Prediction on LMO0003 with example_query", {
   opt_parser <- OptionParser(option_list = option_list)
   opt <- parse_args(opt_parser)
 
-
-  pred <- prediction(query = opt$query, model = opt$model, ncores = opt$threads)
+  pred <- prediction(model_filename = opt$model, 
+                    query = opt$query, ncores = opt$threads)
   my_table <- pred$predicted
-  #print(my_table)
 
-  #message("====")
-  #message(colnames(my_table))
-  #message(my_table[,"dairy"])
-  #message("----")
-  
   expect_equal(sort(colnames(my_table)), sort(c("dairy", "meat", "vegetable", "fruit", "seafood")), expected.label = "column names on the prediction table")
 
   # Dairy

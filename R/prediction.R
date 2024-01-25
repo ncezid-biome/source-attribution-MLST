@@ -1,18 +1,30 @@
-#' @title Prediction
+#' @title Predict using a random forest model
+#' 
+#' This function makes predictions using a random forest model.
+#' In many situations, you would want to make predictions from
+#' many random forest models and aggregate them downstream.
 #'
-#' @param query (character) A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.
-#' @param model (character) Path to single random forest model RDS file
-#' @param ncores (integer, default: 1L) Number of cores to use during random forest fit
+#' @param model_filename (character) The filename of the Random Forest model.
+#' @param query (character) The filename of the query data in CSV format. This is an MLST profiles spreadsheet.
+#' @param ncores (integer, default: 1L) The number of cores to use for parallel processing.
 #'
 #' @return prediction The prediction object from `predict.rfsrc()`
+#' 
 #' @export
 #'
 #' @examples 
-#' See [inst/bootstrapRF.R]
-prediction <- function(query, model, ncores = 1L) {
-
-  log_info(paste0("Running with ", ncores, " cores."))
-  log_info(paste0("Will read model: ", model))
+#' \dontrun{
+#' # Example usage:
+#' result <- prediction(model_filename = "results/bs23.rds",
+#'                      query = "tests/testthat/example_query.csv", ncores = 4)
+#' }
+#' 
+#' @importFrom utils read.csv write.table
+#' @importFrom magrittr `%>%`
+#' @import randomForestSRC predict.rfsrc
+prediction <- function(model_filename, query, ncores = 1L) {
+  log_info(paste0("Running with ",ncores," cores."))
+  log_info(paste0("Will read model: ", model_filename))
 
   orgOpt <- options()
   options(rf.cores = ncores, mc.cores = ncores)
@@ -25,7 +37,7 @@ prediction <- function(query, model, ncores = 1L) {
     mutate(across(everything(), ~ as.factor(as.character(.x)))) %>%
     as.data.frame() # rfsrc() doesn't work with a tibble
 
-  m <- readRDS(model)
+  m <- readRDS(model_filename)
 
   # Identify missing columns
   missing_columns <- setdiff(names(query), names(m$xvar))

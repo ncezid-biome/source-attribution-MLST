@@ -111,14 +111,6 @@ for (o in required_options) {
   }
 }
 
-sourcerer::bootstrapping(
-  input = opt$input,
-  output = opt$output,
-  core_loci = opt[["core-loci"]],
-  dependent = opt$dependent,
-  var_prefix = opt[["starts-with"]],
-  seed = opt$seed,
-  bootstraps = opt$bootstraps,
-  ncores = opt$threads
-)
-
+sourcerer::bootstrapping(input = opt$input, output = opt$output, core_loci = opt$'core-loci',
+              ncores = opt$threads, bootstrap_reps = opt$bootstraps,
+              loci_start_with = opt$'starts-with', my_seed = opt$seed )

@@ -1,4 +1,5 @@
 #!/usr/bin/env Rscript
+
 suppressPackageStartupMessages(library(cluster))
 suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(ape))
@@ -27,8 +28,5 @@ for (o in required_options) {
   }
 }
 
-pred <- sourcerer::prediction(
-  query = opt$query,
-  model = opt$model,
-  ncores = ifelse(is.null(opt$threads), 1L, opt$threads)
-)
+sourcerer::prediction(model_filename = opt$model, 
+                  query = opt$query, ncores = opt$threads)
