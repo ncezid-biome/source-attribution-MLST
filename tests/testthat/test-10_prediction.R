@@ -21,7 +21,7 @@ test_that("Prediction on LMO0003 with example_query", {
   opt <- parse_args(opt_parser)
 
 
-  pred <- prediction(opt)
+  pred <- prediction(query = opt$query, model = opt$model, ncores = opt$threads)
   my_table <- pred$predicted
   #print(my_table)
 

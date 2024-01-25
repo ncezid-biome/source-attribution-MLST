@@ -1,31 +1,31 @@
 #' @title Prediction
 #'
-#' @param opt A set of options from optparse
+#' @param query (character) A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.
+#' @param model (character) Path to single random forest model RDS file
+#' @param ncores (integer, default: 1L) Number of cores to use during random forest fit
 #'
 #' @return prediction The prediction object from `predict.rfsrc()`
 #' @export
 #'
 #' @examples 
 #' See [inst/bootstrapRF.R]
-prediction <- function(opt) {
-  ncores <- opt$threads
+prediction <- function(query, model, ncores = 1L) {
 
-  model_filename <- opt$model
-  log_info(paste0("Running with ",ncores," cores."))
-  log_info(paste0("Will read model: ", model_filename))
+  log_info(paste0("Running with ", ncores, " cores."))
+  log_info(paste0("Will read model: ", model))
 
   orgOpt <- options()
   options(rf.cores = ncores, mc.cores = ncores)
   on.exit(options(orgOpt))
-  
+
   loci_start_with <- "LMO"
 
-  query <- read.csv(opt$query) %>%
+  query <- read.csv(query) %>%
     mutate_all(~ ifelse(is.na(.), 0, .)) %>%
     mutate(across(everything(), ~ as.factor(as.character(.x)))) %>%
     as.data.frame() # rfsrc() doesn't work with a tibble
 
-  m <- readRDS(model_filename)
+  m <- readRDS(model)
 
   # Identify missing columns
   missing_columns <- setdiff(names(query), names(m$xvar))
