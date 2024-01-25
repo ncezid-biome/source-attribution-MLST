@@ -23,8 +23,8 @@ bootstrapping <- function(opt) {
   logger::log_info(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
 
   orgOpt <- options()
-  options(rf.cores=ncores,mc.cores=ncores)
-  #options(rf.cores=orgOpt$rf.cores,mc.cores=orgOpt$mc.cores)
+  options(rf.cores = ncores, mc.cores = ncores)
+  on.exit(options(orgOpt))
 
   loci_start_with <- opt$'starts-with'
   logger::log_info(paste0("Loci start with ",loci_start_with))

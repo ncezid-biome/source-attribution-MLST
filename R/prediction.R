@@ -15,8 +15,9 @@ prediction <- function(opt) {
   log_info(paste0("Will read model: ", model_filename))
 
   orgOpt <- options()
-  options(rf.cores=ncores,mc.cores=ncores)
-
+  options(rf.cores = ncores, mc.cores = ncores)
+  on.exit(options(orgOpt))
+  
   loci_start_with <- "LMO"
 
   query <- read.csv(opt$query) %>%
