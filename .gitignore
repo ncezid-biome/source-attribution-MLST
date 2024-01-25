@@ -6,3 +6,4 @@ results/*
 *.sw[op]
 
 tests/testthat/test-results
+docs
