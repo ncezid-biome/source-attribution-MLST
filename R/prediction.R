@@ -6,11 +6,8 @@
 #' @export
 #'
 #' @examples 
-#' See [inst/bootstrapRF.R]
-prediction <- function(opt) {
-  ncores <- opt$threads
-
-  model_filename <- opt$model
+#' 
+prediction <- function(model_filename, query, ncores) {
   log_info(paste0("Running with ",ncores," cores."))
   log_info(paste0("Will read model: ", model_filename))
 
@@ -20,7 +17,7 @@ prediction <- function(opt) {
 
   loci_start_with <- "LMO"
 
-  query <- read.csv(opt$query) %>%
+  query <- read.csv(query) %>%
     mutate_all(~ ifelse(is.na(.), 0, .)) %>%
     mutate(across(everything(), ~ as.factor(as.character(.x)))) %>%
     as.data.frame() # rfsrc() doesn't work with a tibble

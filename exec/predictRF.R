@@ -1,12 +1,12 @@
 #!/usr/bin/env Rscript
-suppressPackageStartupMessages(library(cluster))
-suppressPackageStartupMessages(library(randomForestSRC))
-suppressPackageStartupMessages(library(ape))
-suppressPackageStartupMessages(library(gt))
-suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(optparse))
-suppressPackageStartupMessages(library(logger))
+#suppressPackageStartupMessages(library(cluster))
+#suppressPackageStartupMessages(library(randomForestSRC))
+#suppressPackageStartupMessages(library(ape))
+#suppressPackageStartupMessages(library(gt))
+#suppressPackageStartupMessages(library(data.table))
+#suppressPackageStartupMessages(library(tidyverse))
+#suppressPackageStartupMessages(library(optparse))
+#suppressPackageStartupMessages(library(logger))
 
 devtools::load_all()
 
@@ -29,7 +29,8 @@ for (o in required_options) {
   }
 }
 
-pred <- prediction(opt)
+pred <- prediction(model_filename = opt$model, 
+                  query = opt$query, ncores = opt$threads)
 
 write.table(pred$predicted,
             file = stdout(),
