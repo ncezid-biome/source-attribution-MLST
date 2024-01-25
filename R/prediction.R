@@ -1,4 +1,4 @@
-#' prediction 
+#' @title Prediction
 #'
 #' @param opt A set of options from optparse
 #'
@@ -15,7 +15,6 @@ prediction <- function(opt) {
   log_info(paste0("Will read model: ", model_filename))
 
   orgOpt <- options()
-  options(browser = 'firefox') 
   options(rf.cores=ncores,mc.cores=ncores)
 
   loci_start_with <- "LMO"

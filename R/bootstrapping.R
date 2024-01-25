@@ -1,4 +1,4 @@
-#' bootstrapping
+#' @title Bootstrapping
 #'
 #' @param opt A set of options from optparse
 #'
@@ -23,7 +23,6 @@ bootstrapping <- function(opt) {
   logger::log_info(paste0("Running with ",ncores," cores and ", bootstrap_reps, " bootstraps"))
 
   orgOpt <- options()
-  options(browser = 'firefox') 
   options(rf.cores=ncores,mc.cores=ncores)
   #options(rf.cores=orgOpt$rf.cores,mc.cores=orgOpt$mc.cores)
 

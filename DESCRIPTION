@@ -26,6 +26,7 @@ Imports:
   data.table,
   dendextend,
   dplyr,
+  foreach,
   ggplot2,
   logger,
   gt,

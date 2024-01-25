@@ -1,4 +1,4 @@
-#' sel_rep_iso
+#' @title sel_rep_iso
 #'
 #' @param dat 
 #' @param ht 
@@ -51,13 +51,14 @@ sel_rep_iso <- function(dat, ht, cgmlst_loci) {
 }
 
 
-#' cal_conf_attr 
+#' @title cal_conf_attr 
 #'
 #' @param n.rep 
 #' @param pred 
 #' @param train 
 #'
 #' @return I have no idea
+#' @import data.table
 #' @export
 #'
 #' @examples TODO
@@ -110,7 +111,7 @@ cal_conf_attr <- function(n.rep, pred, train = NULL) {
 }
 
 
-#' plot_panel_pred_prob_ind
+#' @title plot_panel_pred_prob_ind
 #'
 #' @param pred 
 #' @param train 
@@ -167,7 +168,7 @@ plot_panel_pred_prob_ind <- function(pred, train = NULL) {
 }
 
 
-#' seq.rfsrc
+#' @title seq.rfsrc
 #'
 #' @param dat 
 #' @param imp 
@@ -175,6 +176,7 @@ plot_panel_pred_prob_ind <- function(pred, train = NULL) {
 #' @param ntree 
 #'
 #' @return list(res = dat)
+#' @import foreach
 #' @export
 #'
 #' @examples TODO
@@ -198,7 +200,7 @@ seq.rfsrc <- function(dat, imp, my.seq, ntree) {
   return(list(res = dat))
 }
 
-#' sen_spe
+#' @title sen_spe
 #'
 #' @param pred 
 #' @param obs 
