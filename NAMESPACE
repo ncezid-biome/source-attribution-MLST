@@ -2,9 +2,7 @@
 
 export(bootstrapping)
 export(prediction)
-import(cluster)
 import(dplyr)
-import(ggplot2)
 importFrom(magrittr,`%>%`)
 importFrom(randomForestSRC,predict.rfsrc)
 importFrom(stats,cutree)

@@ -74,7 +74,6 @@
 #'@references <https://doi.org/10.1089/fpd.2023.0046>
 #'
   
-suppressPackageStartupMessages(library(cluster))
 suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(dendextend))

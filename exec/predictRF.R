@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-suppressPackageStartupMessages(library(cluster))
+#suppressPackageStartupMessages(library(cluster))
 suppressPackageStartupMessages(library(randomForestSRC))
 suppressPackageStartupMessages(library(ape))
 suppressPackageStartupMessages(library(gt))

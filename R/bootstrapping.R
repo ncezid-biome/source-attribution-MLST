@@ -24,12 +24,10 @@
 #'                          ncores = 4, bootstrap_reps = 100)
 #' }
 #'
-#' @import cluster
 #' @import dplyr
 #' @importFrom stats cutree hclust quantile rmultinom sd xtabs
 #' @importFrom utils read.csv write.table
 #' @importFrom magrittr `%>%`
-#' @import ggplot2
 bootstrapping <- function(input, output, ncores = 1L,
                           bootstrap_reps = 1L, loci_start_with = "LMO",
                           my_seed = 23L) {
