@@ -82,8 +82,6 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(logger))
 
-devtools::load_all()
-
 # Command line argument parsing
 option_list <- list(
     make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),

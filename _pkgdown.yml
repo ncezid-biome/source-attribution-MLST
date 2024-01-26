@@ -1,0 +1,17 @@
+url: https://ncezid-biome.github.io/source-attribution-MLST/
+template:
+  bootstrap: 5
+reference:
+  - title:  Core Functions
+  - desc: Standard functions to compute source attribution
+  - contents:
+    - prediction
+    - bootstrapping
+  - title: Misc Functions
+  - desc: Additional functions for downstream analysis and plotting
+  - contents:
+    - sel_rep_iso
+    - cal_conf_attr
+    - plot_panel_pred_prob_ind
+    - seq.rfsrc
+    - sen_spe

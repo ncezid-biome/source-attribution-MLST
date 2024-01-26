@@ -29,7 +29,6 @@ data_folder <- paste0(base_dir,"data")
 results_folder <- paste0(base_dir,"results")
 plot_folder <- paste0(base_dir,"plots")
 script_folder <- paste0(base_dir, "scripts")
-options(browser = 'firefox') 
 #ncores <- ifelse(detectCores() - 1 < 1, 1, detectCores() - 1)
 ncores <- 4
 
