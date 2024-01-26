@@ -1,11 +1,12 @@
-#' @title Predict using a random forest model
+#' Predict using a random forest model
 #' 
 #' This function makes predictions using a random forest model.
 #' In many situations, you would want to make predictions from
-#' many random forest models and aggregate them downstream.
+#' many random forest models and aggregate them downstream. 
 #'
 #' @param model_filename (character) The filename of the Random Forest model.
-#' @param query (character) The filename of the query data in CSV format. This is an MLST profiles spreadsheet.
+#' @param query (character) The filename of the query data in CSV format.
+#'   This is an MLST profiles spreadsheet.
 #' @param ncores (integer, default: 1L) The number of cores to use for parallel processing.
 #'
 #' @return prediction The prediction object from `predict.rfsrc()`
@@ -19,9 +20,10 @@
 #'                      query = "tests/testthat/example_query.csv", ncores = 4)
 #' }
 #' 
+#' @importFrom logger log_info
 #' @importFrom utils read.csv write.table
 #' @importFrom magrittr `%>%`
-#' @import randomForestSRC predict.rfsrc
+#' @importFrom randomForestSRC predict.rfsrc
 prediction <- function(model_filename, query, ncores = 1L) {
   log_info(paste0("Running with ",ncores," cores."))
   log_info(paste0("Will read model: ", model_filename))
@@ -54,7 +56,7 @@ prediction <- function(model_filename, query, ncores = 1L) {
   }
 
   # Make predictions
-  pred <- randomForestSRC::predict.rfsrc(m, newdata = query_filtered_cols)
+  pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
   write.table(pred$predicted,
               file = stdout(),

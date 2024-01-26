@@ -2,23 +2,31 @@
 % Please edit documentation in R/prediction.R
 \name{prediction}
 \alias{prediction}
-\title{Prediction}
+\title{Predict using a random forest model}
 \usage{
-prediction(query, model, ncores = 1L)
+prediction(model_filename, query, ncores = 1L)
 }
 \arguments{
-\item{query}{(character) A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.}
+\item{model_filename}{(character) The filename of the Random Forest model.}
 
-\item{model}{(character) Path to single random forest model RDS file}
+\item{query}{(character) The filename of the query data in CSV format.
+This is an MLST profiles spreadsheet.}
 
-\item{ncores}{(integer, default: 1L) Number of cores to use during random forest fit}
+\item{ncores}{(integer, default: 1L) The number of cores to use for parallel processing.}
 }
 \value{
 prediction The prediction object from \code{predict.rfsrc()}
 }
 \description{
-Prediction
+This function makes predictions using a random forest model.
+In many situations, you would want to make predictions from
+many random forest models and aggregate them downstream.
 }
 \examples{
-See [inst/bootstrapRF.R]
+\dontrun{
+# Example usage:
+result <- prediction(model_filename = "results/bs23.rds",
+                     query = "tests/testthat/example_query.csv", ncores = 4)
+}
+
 }

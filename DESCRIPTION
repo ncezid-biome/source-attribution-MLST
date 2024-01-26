@@ -21,13 +21,9 @@ RoxygenNote: 7.3.1
 URL: https://ncezid-biome.github.io/source-attribution-MLST
 BugReports: https://github.com/ncezid-biome/source-attribution-MLST/issues
 Imports:
-  ape,
-  cluster,
   data.table,
-  dendextend,
   dplyr,
   foreach,
-  ggplot2,
   logger,
   gt,
   magrittr,

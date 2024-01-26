@@ -2,45 +2,44 @@
 % Please edit documentation in R/bootstrapping.R
 \name{bootstrapping}
 \alias{bootstrapping}
-\title{Bootstrapping}
+\title{Bootstrap random forest analysis}
 \usage{
 bootstrapping(
   input,
   output,
-  core_loci,
-  dependent = "food",
-  starts_with = "LMO",
-  seed = 23,
-  bootstraps = 1,
-  ncores = 1L
+  ncores = 1L,
+  bootstrap_reps = 1L,
+  loci_start_with = "LMO",
+  my_seed = 23L
 )
 }
 \arguments{
-\item{input}{(character) A spreadsheet describing MLST profiles, in csv or csv.gz format.}
+\item{input}{(character) The input file path for MLST profile data in csv or csv.gz format.}
 
-\item{output}{(character) Output folder for bootstrap random forest models}
+\item{output}{(character) The output directory for random forest models.}
 
-\item{core_loci}{(character) A comma-separated list of core loci to help remove duplicate isolates.
-These loci must be present as headers in the spreadsheet from \code{input}.}
+\item{ncores}{(integer, default: 1L) The number of cores to use for parallel processing.}
 
-\item{dependent}{(character, default "food") The dependent variable in \code{input}}
+\item{bootstrap_reps}{(integer, default: 1L) The number of bootstrap replicates.}
 
-\item{starts_with}{(character, Default: "LMO") The prefix of all independent variables.}
+\item{loci_start_with}{(character, default: "LMO") The prefix for loci names.}
 
-\item{seed}{(numeric, default: 23) Random seed}
-
-\item{bootstraps}{(numeric, default: 1) How many random forest bootstrap models to output}
-
-\item{ncores}{(integer, default: 1) How many cores to use. Default:1}
+\item{my_seed}{(integer, default: 23L) The seed for reproducibility.}
 }
 \value{
 my_filenames A list of random forest filenames
 }
 \description{
-Bootstrapping
+This function creates one or more random forest models from a spreadsheet of MLST profiles.
+In many situations, you would want to make
+many random forest models and make predictions from
+each one downstream.
 }
 \examples{
-TODO
-See [inst/bootstrapRF.R]
+\dontrun{
+# Example usage:
+model_filenames <- bootstrapping(input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz", output = "results/",
+                         ncores = 4, bootstrap_reps = 100)
+}
 
 }
