@@ -46,7 +46,11 @@ sel_rep_iso <- function(dat, ht, cgmlst_loci) {
   sapply(ct.mem, function(x) length(x$mem.id)) # number of isolates in each cluster
 
   cluster.id <- unlist(sapply(ct.mem, function(x) x$sel.id)) # SSR_ID of randomly selected isolates
-
+  cat(paste0(cluster.id, collapse="\n"))
+  quit(status=0)
+  print(cluster.id) 
+  print(str(head(cluster.id)))
+  quit(status=0)
   return(cluster.id)
 }
 

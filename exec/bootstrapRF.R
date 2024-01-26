@@ -9,9 +9,6 @@
 #'@param input Spreadsheet describing MLST profiles, in csv or csv.gz format.
 #'@param output Directory of bootstrap random forest models to output.
 #'@param dependent The dependent variable in the spreadsheet. Default:food
-#'@param core-loci A comma-separated list of core loci to help remove duplicate 
-#'  isolates.
-#'  These loci must be present as headers in the spreadsheet from `--input`.
 #'@param starts-with The prefix of all independent variables. Default:LMO
 #'@param seed Random seed. Default:23
 #'@param bootstraps How many random forest bootstrap models to output
@@ -36,7 +33,6 @@
 #'   --input data/isolates_original_plus_new_dec_1_2021.csv.gz \
 #'   -o results \
 #'   --dependent food \
-#'   --core-loci data/cgMLST_loci.csv \
 #'   --starts-with LMO \
 #'   --bootstraps 1 \
 #'   --threads 8 \
@@ -66,7 +62,6 @@
 #'        --input data/isolates_original_plus_new_dec_1_2021.csv.gz \
 #'        -o results/LMO \
 #'        --dependent food \
-#'        --core-loci data/cgMLST_loci.csv \
 #'        --starts-with LMO \
 #'        --bootstraps 10 \
 #'        --threads 1 \
@@ -94,7 +89,6 @@ option_list <- list(
     make_option(c("-i", "--input"), type = "character", help = "Spreadsheet describing MLST profiles, in csv or csv.gz format."),
     make_option(c("-o", "--output"), type = "character", help = "Directory of bootstrap random forest models to output", default = "results"),
     make_option(c("-d", "--dependent"), type = "character", help = "The dependent variable in the spreadsheet. Default:food", default = "food"),
-    make_option(c("-c", "--core-loci"), type = "character", help = "A comma-separated list of core loci to help remove duplicate isolates. These loci must be present as headers in the spreadsheet from --input."),
     make_option(c("", "--starts-with"), type = "character", help = "The prefix of all independent variables. Default:LMO", default = "LMO"),
     make_option(c("", "--seed"), type = "integer", help = "Random seed. Default:23", default = 23),
     make_option(c("-b", "--bootstraps"), type = "integer", help = "How many random forest bootstraps to output", default = 1),
@@ -104,7 +98,7 @@ opt_parser <- OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 # required options
-required_options <- c("input", "output", "core-loci")
+required_options <- c("input", "output")
 for (o in required_options) {
   if (!(o %in% names(opt))) {
     cat("ERROR: Required option", o, "is missing.\n")
@@ -113,7 +107,7 @@ for (o in required_options) {
   }
 }
 
-bootstrapping(input = opt$input, output = opt$output, core_loci = opt$'core-loci',
+bootstrapping(input = opt$input, output = opt$output, 
               ncores = opt$threads, bootstrap_reps = opt$bootstraps,
               loci_start_with = opt$'starts-with', my_seed = opt$seed )
 
