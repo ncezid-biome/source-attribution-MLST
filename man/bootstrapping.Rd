@@ -38,7 +38,6 @@ many random forest models and make predictions from
 each one downstream.
 }
 \examples{
-TODO
 \dontrun{
 # Example usage:
 model_filenames <- bootstrapping(input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz", output = "results/",

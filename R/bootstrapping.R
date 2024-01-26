@@ -17,7 +17,7 @@
 #' 
 #' @export
 #'
-#' @examples TODO
+#' @examples 
 #' \dontrun{
 #' # Example usage:
 #' model_filenames <- bootstrapping(input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz", output = "results/",
