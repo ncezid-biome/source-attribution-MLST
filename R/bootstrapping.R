@@ -25,9 +25,11 @@
 #' }
 #'
 #' @import dplyr
+#' @importFrom logger log_info
 #' @importFrom stats cutree hclust quantile rmultinom sd xtabs
 #' @importFrom utils read.csv write.table
 #' @importFrom magrittr `%>%`
+#' @importFrom randomForestSRC rfsrc
 bootstrapping <- function(input, output, ncores = 1L,
                           bootstrap_reps = 1L, loci_start_with = "LMO",
                           my_seed = 23L) {

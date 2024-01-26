@@ -20,6 +20,7 @@
 #'                      query = "tests/testthat/example_query.csv", ncores = 4)
 #' }
 #' 
+#' @importFrom logger log_info
 #' @importFrom utils read.csv write.table
 #' @importFrom magrittr `%>%`
 #' @importFrom randomForestSRC predict.rfsrc
@@ -55,7 +56,7 @@ prediction <- function(model_filename, query, ncores = 1L) {
   }
 
   # Make predictions
-  pred <- randomForestSRC::predict.rfsrc(m, newdata = query_filtered_cols)
+  pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
   write.table(pred$predicted,
               file = stdout(),
