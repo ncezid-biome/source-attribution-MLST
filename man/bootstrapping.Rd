@@ -25,8 +25,6 @@ bootstrapping(
 \item{loci_start_with}{(character, default: "LMO") The prefix for loci names.}
 
 \item{my_seed}{(integer, default: 23L) The seed for reproducibility.}
-
-\item{...}{Additional arguments for future expansion. Currently not used.}
 }
 \value{
 my_filenames A list of random forest filenames

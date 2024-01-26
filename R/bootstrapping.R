@@ -11,7 +11,6 @@
 #' @param bootstrap_reps (integer, default: 1L) The number of bootstrap replicates.
 #' @param loci_start_with (character, default: "LMO") The prefix for loci names.
 #' @param my_seed (integer, default: 23L) The seed for reproducibility.
-#' @param ... Additional arguments for future expansion. Currently not used.
 #'
 #' @return my_filenames A list of random forest filenames
 #' 
