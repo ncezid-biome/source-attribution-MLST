@@ -22,7 +22,7 @@
 #' 
 #' @importFrom utils read.csv write.table
 #' @importFrom magrittr `%>%`
-#' @import randomForestSRC predict.rfsrc
+#' @importFrom randomForestSRC predict.rfsrc
 prediction <- function(model_filename, query, ncores) {
   log_info(paste0("Running with ",ncores," cores."))
   log_info(paste0("Will read model: ", model_filename))
