@@ -7,4 +7,5 @@ reference:
   - contents:
     - prediction
     - bootstrapping
-    - aggregate
+    - aggregate_predictions
+    - aggregate_models

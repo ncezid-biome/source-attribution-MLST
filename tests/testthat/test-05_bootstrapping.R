@@ -9,7 +9,7 @@ suppressPackageStartupMessages(library("optparse"))
 suppressPackageStartupMessages(library("randomForestSRC"))
 suppressPackageStartupMessages(library("tidyverse"))
 
-
+log_threshold(SUCCESS)
 
 test_that("Bootstrapping on LMO0003", {
 

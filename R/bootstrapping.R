@@ -74,7 +74,7 @@ bootstrapping <- function(input, output, ncores = 1L,
   for (i in seq_len(bootstrap_reps)) {
     #seed <- sample(1:as.integer(.Machine$integer.max))
     log_info(paste0("Modeling rep ", i, " with seed ", my_seed, "..."))
-    model <- rfsrc(food ~ ., train.df.all, importance = T, seed = my_seed) #
+    model <- rfsrc(food ~ ., train.df.all, importance = TRUE, ntree = 500, seed = my_seed) #
 
     # Save intermediate results
     # TODO in the future in might be nice to save the filename with the random seed or a hash

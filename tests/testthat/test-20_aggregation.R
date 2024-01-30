@@ -5,6 +5,28 @@ suppressPackageStartupMessages(library("gt"))
 suppressPackageStartupMessages(library("randomForestSRC"))
 suppressPackageStartupMessages(library("tidyverse"))
 
+# Log levels are: 
+# TRACE
+# DEBUG
+# INFO
+# SUCCESS
+# WARN
+# ERROR
+# FATAL
+
+log_threshold(SUCCESS)
+
+test_that("Aggregating model LMO0003", {
+  models <- list()
+  for(i in seq(1,3)){
+    model_filename <- paste0("test-results/bs", (i+22), ".rds")
+    models[[i]] <- readRDS(model_filename)
+  }
+
+  composite_model <- aggregate_model(models)
+  
+  #print(models[[i]]$importance[,"all"])
+})
 
 test_that("Aggregating LMO0003 with example_query", {
 
@@ -13,13 +35,12 @@ test_that("Aggregating LMO0003 with example_query", {
   # rfsrc prediction objects
   predictions <- list()
   for(i in seq(1,3)){
-    model <- paste0("test-results/bs",(i+22),".rds")
-    predictions[[i]] <- prediction(model_filename = model, 
-                                   query = "example_query.csv", ncores = ncores)
+    prediction_filename <- paste0("test-results/predictions",(i+22),".rds")
+    predictions[[i]] <- readRDS(prediction_filename)
 
   }
 
-  bootstrapped_prediction <- aggregate(predictions = predictions)
+  bootstrapped_prediction <- aggregate_predictions(predictions = predictions)
  
   expected <- matrix(
     c(
