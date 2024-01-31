@@ -8,4 +8,4 @@ reference:
     - prediction
     - bootstrapping
     - aggregate_predictions
-    - aggregate_models
+    - aggregate_model
