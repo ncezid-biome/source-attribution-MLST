@@ -58,12 +58,12 @@ prediction <- function(model_filename, query, ncores = 1L) {
   # Make predictions
   pred <- predict.rfsrc(m, newdata = query_filtered_cols)
 
-  write.table(pred$predicted,
-              file = stdout(),
-              sep  = "\t",
-              quote = FALSE,
-              row.names = FALSE,
-              col.names = TRUE)
+#  write.table(pred$predicted,
+#              file = stdout(),
+#              sep  = "\t",
+#              quote = FALSE,
+#              row.names = FALSE,
+#              col.names = TRUE)
 
   return(pred)
 }

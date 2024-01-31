@@ -21,15 +21,18 @@ RoxygenNote: 7.3.1
 URL: https://ncezid-biome.github.io/source-attribution-MLST
 BugReports: https://github.com/ncezid-biome/source-attribution-MLST/issues
 Imports:
-  data.table,
   dplyr,
-  foreach,
   logger,
-  gt,
   magrittr,
-  optparse,
   randomForestSRC,
-  tidyverse
+  rlang
 Suggests: 
-    testthat (>= 3.0.0)
+  ape,
+  cluster,
+  data.table,
+  dendextend,
+  gt,
+  optparse,
+  testthat (>= 3.0.0),
+  tidyverse
 Config/testthat/edition: 3

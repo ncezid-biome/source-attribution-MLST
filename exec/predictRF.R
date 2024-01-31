@@ -9,6 +9,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(logger))
 
+devtools::load_all()
+
 # Command line argument parsing
 option_list <- list(
     make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file"),

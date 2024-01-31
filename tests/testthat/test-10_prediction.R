@@ -10,6 +10,7 @@ suppressPackageStartupMessages(library("optparse"))
 suppressPackageStartupMessages(library("randomForestSRC"))
 suppressPackageStartupMessages(library("tidyverse"))
 
+log_threshold(SUCCESS)
 
 test_that("Prediction on LMO0003 with example_query", {
   option_list <- list(
@@ -19,9 +20,25 @@ test_that("Prediction on LMO0003 with example_query", {
   )
   opt_parser <- OptionParser(option_list = option_list)
   opt <- parse_args(opt_parser)
+  ncores <- opt$threads
 
-  pred <- prediction(model_filename = opt$model, 
-                    query = opt$query, ncores = opt$threads)
+  # rfsrc prediction objects
+  predictions <- list()
+  for(i in seq(1,3)){
+    model <- paste0("test-results/bs",(i+22),".rds")
+    predictions[[i]] <- prediction(model_filename = model, 
+                                   query = "example_query.csv", ncores = ncores)
+    
+    
+    # Save this file for downstream tests
+    out_file <- paste0("test-results/predictions", (i+22), ".rds")
+    #log_success(paste0("Saving file to ", out_file))
+    saveRDS(predictions[[i]], file = out_file)
+    #log_success("BREAK to quickly dev downstream"); break;
+  }
+
+  # Test on the first prediction
+  pred <- readRDS("test-results/predictions23.rds")
   my_table <- pred$predicted
 
   expect_equal(sort(colnames(my_table)), sort(c("dairy", "meat", "vegetable", "fruit", "seafood")), expected.label = "column names on the prediction table")

@@ -38,8 +38,11 @@ each one downstream.
 \examples{
 \dontrun{
 # Example usage:
-model_filenames <- bootstrapping(input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz", output = "results/",
-                         ncores = 4, bootstrap_reps = 100)
+model_filenames <- bootstrapping(
+                      input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz",
+                      output = "results/",
+                      ncores = 4, 
+                      bootstrap_reps = 100)
 }
 
 }
