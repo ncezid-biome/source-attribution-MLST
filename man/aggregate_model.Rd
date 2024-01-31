@@ -23,5 +23,5 @@ coming from \code{bootstrapping()}
 \dontrun{
 Example usage: TODO
  }
-
+ 
 }

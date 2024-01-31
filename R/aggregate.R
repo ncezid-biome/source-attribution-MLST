@@ -57,13 +57,15 @@ aggregate_predictions <- function(predictions) {
 #' \dontrun{
 #' Example usage: TODO
 #'  }
-#' 
+#'  
 #' @importFrom logger log_info
 #' @importFrom randomForestSRC rfsrc
+#' @importFrom rlang duplicate
+#' @importFrom stats setNames
 aggregate_model <- function(models) {
   # Deep clone the first model so that we don't mess with it
   # by reference accidentally.
-  ref_model <- rlang::duplicate(models[[1]], shallow = FALSE)
+  ref_model <- duplicate(models[[1]], shallow = FALSE)
   
   rank_vec <- vector("list", length = length(models))
 

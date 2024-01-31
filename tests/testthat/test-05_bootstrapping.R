@@ -11,6 +11,10 @@ suppressPackageStartupMessages(library("tidyverse"))
 
 log_threshold(SUCCESS)
 
+#' @importFrom optparse make_option
+#' @importFrom optparse OptionParser 
+#' @importFrom optparse parse_args
+#' 
 test_that("Bootstrapping on LMO0003", {
 
   # Actually run the options but accept some slightly modified defaults.

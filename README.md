@@ -1,6 +1,6 @@
 # source-attribution-MLST
 
-This repo describes the source attributions project from
+This repo describes the software from the source attributions project from
 the Enterics Diseases Epidemiology Branch (EDEB)
 and the Enteric Diseases Laboratory Branch (EDLB)
 in the Division of Foodborne, Waterborne, and Environmental Diseases
@@ -13,6 +13,7 @@ The manuscript can be found at <https://doi.org/10.1089/fpd.2023.0046>.
 Requires R and `devtools`
 
 ```shell
+library(devtools)
 devtools::install_github("ncezid-biome/source-attribution-MLST")
 ```
 
@@ -30,7 +31,6 @@ which bootstrapRF.R
 which predictRF.R
 
 ```
-
 
 ## Usage
 
@@ -124,8 +124,10 @@ If more bootstraps were requested than 1, there would be more files under `resul
 Each random forest number is given a bootstrap number in the file name, with the random seed used.
 Seeds are incremented by 1 if more bootstraps are requested.
 
-    Rscript scripts/bootstrapRF.R --input data/isolates_original_plus_new_dec_1_2021.csv.gz -o results --dependent food --core-loci data/cgMLST_loci.csv --starts-with LMO --bootstraps 1 --threads 8 --seed 23
-    Rscript scripts/predictRF.R --query data/example_query.csv -m results/bs23.rds --threads 1
+```shell
+Rscript scripts/bootstrapRF.R --input data/isolates_original_plus_new_dec_1_2021.csv.gz -o results --dependent food --core-loci data/cgMLST_loci.csv --starts-with LMO --bootstraps 1 --threads 8 --seed 23
+Rscript scripts/predictRF.R --query data/example_query.csv -m results/bs23.rds --threads 1
+```
 
 #### Parallelized model creation
 
@@ -138,10 +140,19 @@ We request 10 models using `--bootstraps` and therefore we are getting 4 x 10 = 
 Formally, it is possible that the seeds are close enough to each other that some output models will override each other.
 You can try to avoid that by increasing the range in `shuf` or by creating one-off models to fill in the gaps.
 
-    shuf -i 1-9999 -n 4 | \
-      xargs -n 1 -P 4 bash -c '
-        Rscript scripts/bootstrapRF.R --input data/isolates_original_plus_new_dec_1_2021.csv.gz -o results/LMO0003 --dependent food --core-loci data/cgMLST_loci.csv --starts-with LMO0003 --bootstraps 10 --threads 1 --seed $0
-      '
+```shell
+shuf -i 1-9999 -n 4 | \
+  xargs -n 1 -P 4 bash -c '
+    Rscript scripts/bootstrapRF.R --input data/isolates_original_plus_new_dec_1_2021.csv.gz \
+      -o results/LMO0003 \
+      --dependent food \
+      --core-loci data/cgMLST_loci.csv \
+      --starts-with LMO0003 \
+      --bootstraps 10 \
+      --threads 1 \
+      --seed $0
+  '
+```
 
 #### Parallelized predicting
 
@@ -149,11 +160,16 @@ This method reads all the rds model files you have created and sends them to `xa
 Each model will give a prediction in tab-delimited format.
 At the end as an optional step, we suggest using `column -t` which aligns columns in a terminal.
 
-    \ls results/LMO0003/*.rds | \
-      xargs -n 1 -P 8 bash -c '
-        Rscript scripts/predictRF.R --query data/example_query.csv -m $0 --threads 1
-      ' | \
-      column -t
+```shell
+\ls results/LMO0003/*.rds | \
+  xargs -n 1 -P 8 bash -c '
+    Rscript scripts/predictRF.R \
+      --query data/example_query.csv \
+      -m $0 \
+      --threads 1
+  ' | \
+  column -t
+```
 
 ### Complete usage
 
@@ -213,7 +229,7 @@ Options:
 For a given query, each random forest model can yield a different outcome.
 Therefore, you need to aggregate results across these bootstraps.
 
-Here is one method as an example that finds the mean for each category 
+Here is one method as an example that finds the mean for each category
 on the command line.
 
 ```shell
@@ -229,4 +245,3 @@ INFO [2024-01-24 14:19:38] Running with 4 cores.
 INFO [2024-01-24 14:19:38] Will read model: tests/testthat/test-results/bs25.rds
 0.15012679321561  0.15789806734794  0.31114043339838  0.16977994687198  0.21105475916609
 ```
-
