@@ -46,7 +46,10 @@ aggregate_predictions <- function(predictions) {
 #' 
 #' @param models (vector of rfsrc objects) 
 #' 
-#' @return composite (rfsrc object)
+#' @return composite (rfsrc object) The first rfsrc object is returned
+#' but modified with an attribute $aggregate_rank:
+#' each gene is given the median rank in order of importance
+#' according to the VIMP scores from each bootstrap.
 #' 
 #' @export 
 #' 
