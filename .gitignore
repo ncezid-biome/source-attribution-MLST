@@ -2,6 +2,7 @@ results/*
 
 .R*
 *.R[a-zA-Z0-9]*
+*.rds
 # Not ignoring man files
 !man/*.Rd
 
