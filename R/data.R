@@ -30,4 +30,4 @@ example_query <- system.file("data", "example_query.csv", package = "sourcerer")
 #' @export rds_dir
 #' 
 #' @format A file path to the rds_dir
-rds_dir <- system.file("tests", "test-results", package = "sourcerer")
+rds_dir <- system.file("data", "test-results", package = "sourcerer")
