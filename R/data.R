@@ -9,9 +9,10 @@
 #' 
 #' @format A file path to Listeria_isolates.csv.gz
 #' @importFrom usethis use_data
-Listeria_isolates <- system.file("data/Listeria_isolates.csv.gz", package = "sourcerer")
-use_data(Listeria_isolates, internal = FALSE, overwrite = TRUE, 
-          compress = "gzip", version = 3)
+Listeria_isolates <- system.file("data", "Listeria_isolates.csv.gz", package = "sourcerer")
+#use_data(Listeria_isolates, internal = FALSE, overwrite = TRUE, 
+#          compress = "gzip", version = 3)
+#print(Listeria_isolates)
 
 #' @title Example query
 #' 
@@ -23,6 +24,6 @@ use_data(Listeria_isolates, internal = FALSE, overwrite = TRUE,
 #' 
 #' @format A file path to example_query.csv
 #' @importFrom usethis use_data
-example_query <- system.file("data/example_query.csv", package = "sourcerer")
-use_data(example_query, internal = FALSE, overwrite = TRUE, 
-          compress = "gzip", version = 3)
+example_query <- system.file("data", "example_query.csv", package = "sourcerer")
+#use_data(example_query, internal = FALSE, overwrite = TRUE, 
+#          compress = "gzip", version = 3)
