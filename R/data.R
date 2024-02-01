@@ -5,6 +5,7 @@
 #' 
 #' @name Listeria_isolates
 #' 
+#' @export Listeria_isolates
 #' 
 #' @format A file path to Listeria_isolates.csv.gz
 #' @importFrom usethis use_data
@@ -17,6 +18,8 @@ use_data(Listeria_isolates, internal = FALSE, overwrite = TRUE,
 #' @description This is an example query for use with the prediction step.
 #' 
 #' @name example_query
+#' 
+#' @export example_query
 #' 
 #' @format A file path to example_query.csv
 #' @importFrom usethis use_data
