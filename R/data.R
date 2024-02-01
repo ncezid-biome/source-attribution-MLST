@@ -8,7 +8,7 @@
 #' @export Listeria_isolates
 #' 
 #' @format A file path to Listeria_isolates.csv.gz
-Listeria_isolates <- system.file("data", "Listeria_isolates.csv.gz", package = "sourcerer")
+Listeria_isolates <- system.file("extdata", "Listeria_isolates.csv.gz", package = "sourcerer")
 
 #' @title Example query
 #' 
@@ -19,7 +19,7 @@ Listeria_isolates <- system.file("data", "Listeria_isolates.csv.gz", package = "
 #' @export example_query
 #' 
 #' @format A file path to example_query.csv
-example_query <- system.file("data", "example_query.csv", package = "sourcerer")
+example_query <- system.file("extdata", "example_query.csv", package = "sourcerer")
 
 #' @title rds folder
 #' 

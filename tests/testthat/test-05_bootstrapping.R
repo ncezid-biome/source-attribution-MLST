@@ -12,12 +12,13 @@ log_threshold(SUCCESS)
 
 test_that("Bootstrapping on LMO0003", {
 
-  input  <- Listeria_isolates 
+  input  <- sourcerer::Listeria_isolates 
   output <- rds_dir
   ncores <- 1
   bootstrap_reps <- 3
   loci_start_with <- "LMO0003"
   my_seed <- 23
+  print(paste0("=====I will read csv file ",input, "======"))
   filenames <- bootstrapping(input = input, output = output, 
                   ncores = ncores, bootstrap_reps = bootstrap_reps,
                   loci_start_with = loci_start_with, my_seed = my_seed )
