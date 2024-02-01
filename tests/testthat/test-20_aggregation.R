@@ -4,8 +4,7 @@ suppressPackageStartupMessages(library("logger"))
 suppressPackageStartupMessages(library("gt"))
 suppressPackageStartupMessages(library("randomForestSRC"))
 suppressPackageStartupMessages(library("tidyverse"))
-library(devtools)
-devtools::load_all()
+
 
 # Log levels are: 
 # TRACE
@@ -22,7 +21,7 @@ test_that("Aggregating model LMO0003", {
   models <- list()
   for(i in seq(1,3)){
     model_filename <- paste0(rds_dir, "/bs", (i+22), ".rds")
-    print(model_filename)
+    #print(model_filename)
     models[[i]] <- readRDS(model_filename)
   }
 
