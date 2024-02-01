@@ -8,11 +8,7 @@
 #' @export Listeria_isolates
 #' 
 #' @format A file path to Listeria_isolates.csv.gz
-#' @importFrom usethis use_data
 Listeria_isolates <- system.file("data", "Listeria_isolates.csv.gz", package = "sourcerer")
-#use_data(Listeria_isolates, internal = FALSE, overwrite = TRUE, 
-#          compress = "gzip", version = 3)
-#print(Listeria_isolates)
 
 #' @title Example query
 #' 
@@ -23,7 +19,15 @@ Listeria_isolates <- system.file("data", "Listeria_isolates.csv.gz", package = "
 #' @export example_query
 #' 
 #' @format A file path to example_query.csv
-#' @importFrom usethis use_data
 example_query <- system.file("data", "example_query.csv", package = "sourcerer")
-#use_data(example_query, internal = FALSE, overwrite = TRUE, 
-#          compress = "gzip", version = 3)
+
+#' @title rds folder
+#' 
+#' @description This is where RDS files are stored for the unit tests
+#' 
+#' @name rds_dir
+#' 
+#' @export rds_dir
+#' 
+#' @format A file path to the rds_dir
+rds_dir <- system.file("tests", "test-results", package = "sourcerer")

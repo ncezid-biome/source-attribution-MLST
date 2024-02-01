@@ -6,39 +6,31 @@ suppressPackageStartupMessages(library("dendextend"))
 suppressPackageStartupMessages(library("dplyr"))
 suppressPackageStartupMessages(library("logger"))
 suppressPackageStartupMessages(library("gt"))
-suppressPackageStartupMessages(library("optparse"))
 suppressPackageStartupMessages(library("randomForestSRC"))
 suppressPackageStartupMessages(library("tidyverse"))
 
 log_threshold(SUCCESS)
 
 test_that("Prediction on LMO0003 with example_query", {
-  option_list <- list(
-      make_option(c("-m", "--model"), type = "character", help = "A single random forest model RDS file", default = "test-results/bs23.rds"),
-      make_option(c("-q", "--query"), type = "character", help = "A CSV file with two rows: a header and values for an MLST profile. The header should only have columns with relevant loci and not even an identifier for the genome.", default = "example_query.csv"),
-      make_option(c("-t", "--threads"), type = "integer", help = "How many cores to use. Default: 1", default = 1)
-  )
-  opt_parser <- OptionParser(option_list = option_list)
-  opt <- parse_args(opt_parser)
-  ncores <- opt$threads
+  ncores <- 1
 
   # rfsrc prediction objects
   predictions <- list()
   for(i in seq(1,3)){
-    model <- paste0("test-results/bs",(i+22),".rds")
+    model <- paste0(rds_dir,"/bs",(i+22),".rds")
     predictions[[i]] <- prediction(model_filename = model, 
-                                   query = "example_query.csv", ncores = ncores)
+                                   query = example_query, ncores = ncores)
     
     
     # Save this file for downstream tests
-    out_file <- paste0("test-results/predictions", (i+22), ".rds")
+    out_file <- paste0(rds_dir, "/predictions", (i+22), ".rds")
     #log_success(paste0("Saving file to ", out_file))
     saveRDS(predictions[[i]], file = out_file)
     #log_success("BREAK to quickly dev downstream"); break;
   }
 
   # Test on the first prediction
-  pred <- readRDS("test-results/predictions23.rds")
+  pred <- readRDS(paste0(rds_dir, "/predictions23.rds"))
   my_table <- pred$predicted
 
   expect_equal(sort(colnames(my_table)), sort(c("dairy", "meat", "vegetable", "fruit", "seafood")), expected.label = "column names on the prediction table")
