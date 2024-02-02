@@ -3,8 +3,8 @@ template:
   bootstrap: 5
 reference:
   - title:  Core Functions
-  - desc: Standard functions to compute source attribution
-  - contents:
+    desc: Standard functions to compute source attribution
+    contents:
     - prediction
     - bootstrapping
     - aggregate_predictions
@@ -14,3 +14,10 @@ reference:
   - contents:
     - example_query
     - Listeria_isolates
+    - rds_dir
+
+#articles:
+#  - title: Main documentation
+#    navbar: ~
+#    contents:
+#    - main
