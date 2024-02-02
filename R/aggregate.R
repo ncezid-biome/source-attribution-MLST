@@ -1,4 +1,3 @@
-
 #' Aggregate predictions
 #' 
 #' This function aggregates predictions from multiple

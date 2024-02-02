@@ -13,7 +13,6 @@ log_threshold(SUCCESS)
 
 test_that("Prediction on LMO0003 with example_query", {
   ncores <- 1
-
   # rfsrc prediction objects
   predictions <- list()
   for(i in seq(1,3)){
