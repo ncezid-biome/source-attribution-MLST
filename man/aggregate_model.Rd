@@ -7,11 +7,11 @@
 aggregate_model(models)
 }
 \arguments{
-\item{models}{(vector of rfsrc objects)}
+\item{models}{(vector of `rfsrc`` objects)}
 }
 \value{
-composite (rfsrc object) The first rfsrc object is returned
-but modified with an attribute $aggregate_rank:
+composite (\code{rfsrc} object) The first rfsrc object is returned
+but modified with an attribute \verb{$aggregate_rank}:
 each gene is given the median rank in order of importance
 according to the VIMP scores from each bootstrap.
 }
@@ -20,8 +20,12 @@ This function makes a composite model from many models
 coming from \code{bootstrapping()}
 }
 \examples{
-\dontrun{
-Example usage: TODO
- }
+  models = c(
+    paste0(rds_dir,"/bs23.rds"),
+    paste0(rds_dir,"/bs24.rds"),
+    paste0(rds_dir,"/bs25.rds")
+  )
+  ref_model <- aggregate_model(models)
+  print(ref_model$aggregate_rank)
  
 }

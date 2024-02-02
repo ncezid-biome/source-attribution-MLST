@@ -17,5 +17,4 @@
 #' \describe{
 #'   \item{\code{LMO0XXX}}{double Expression at site XXX}
 #' }
-#' @details DETAILS
 "example_query"

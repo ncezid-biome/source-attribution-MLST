@@ -17,14 +17,16 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
 #' # Example usage:
+#' print(Listeria_isolates)
+#' print(rds_dir)
 #' model_filenames <- bootstrapping(
-#'                       input = "tests/testthat/isolates_original_plus_new_dec_1_2021.csv.gz",
-#'                       output = "results/",
-#'                       ncores = 4, 
-#'                       bootstrap_reps = 100)
-#' }
+#'                       input = Listeria_isolates,
+#'                       output = rds_dir,
+#'                       loci_start_with = "LMO0003",
+#'                       ncores = 2, 
+#'                       bootstrap_reps = 3)
+#' print(model_filenames)
 #'
 #' @import dplyr
 #' @importFrom logger log_info

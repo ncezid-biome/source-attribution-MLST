@@ -17,12 +17,11 @@ This function aggregates predictions from multiple
 calls of \code{prediction()}.
 }
 \examples{
-\dontrun{
 # Example usage:
 prediction <- list()
 predictions[[1]] <- prediction(model = "bs23.rds", ...)
 predictions[[2]] <- prediction(model = "bs24.rds", ...)
 result <- aggregate_predictions(predictions)
-}
+print(result)
 
 }

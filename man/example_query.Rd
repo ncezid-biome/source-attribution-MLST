@@ -16,7 +16,4 @@ example_query
 \description{
 This is an example query for use with the prediction step.
 }
-\details{
-DETAILS
-}
 \keyword{datasets}

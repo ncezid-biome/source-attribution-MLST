@@ -23,10 +23,16 @@ In many situations, you would want to make predictions from
 many random forest models and aggregate them downstream.
 }
 \examples{
-\dontrun{
 # Example usage:
-result <- prediction(model_filename = "results/bs23.rds",
-                     query = "tests/testthat/example_query.csv", ncores = 4)
-}
+model_filename <- paste0(rds_dir, "/bs23.rds")
+query          <- example_query
+print(model_filename)
+print(example_query)
+result <- prediction(
+  model_filename = model_filename,
+  query = example_query,
+  ncores = 4)
+
+print(result$predicted)
 
 }

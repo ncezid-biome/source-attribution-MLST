@@ -1,4 +1,3 @@
-
 #' Aggregate predictions
 #' 
 #' This function aggregates predictions from multiple
@@ -11,13 +10,12 @@
 #' @export
 #'
 #' @examples 
-#' \dontrun{
 #' # Example usage:
 #' prediction <- list()
 #' predictions[[1]] <- prediction(model = "bs23.rds", ...)
 #' predictions[[2]] <- prediction(model = "bs24.rds", ...)
 #' result <- aggregate_predictions(predictions)
-#' }
+#' print(result)
 #' 
 #' @importFrom logger log_info
 #' @importFrom utils read.csv write.table
@@ -45,19 +43,23 @@ aggregate_predictions <- function(predictions) {
 #' This function makes a composite model from many models
 #' coming from `bootstrapping()`
 #' 
-#' @param models (vector of rfsrc objects) 
+#' @param models (vector of `rfsrc`` objects) 
 #' 
-#' @return composite (rfsrc object) The first rfsrc object is returned
-#' but modified with an attribute $aggregate_rank:
+#' @return composite (`rfsrc` object) The first rfsrc object is returned
+#' but modified with an attribute `$aggregate_rank`:
 #' each gene is given the median rank in order of importance
 #' according to the VIMP scores from each bootstrap.
 #' 
 #' @export 
 #' 
 #' @examples 
-#' \dontrun{
-#' Example usage: TODO
-#'  }
+#'   models = c(
+#'     paste0(rds_dir,"/bs23.rds"),
+#'     paste0(rds_dir,"/bs24.rds"),
+#'     paste0(rds_dir,"/bs25.rds")
+#'   )
+#'   ref_model <- aggregate_model(models)
+#'   print(ref_model$aggregate_rank)
 #'  
 #' @importFrom logger log_info
 #' @importFrom randomForestSRC rfsrc
