@@ -9,3 +9,6 @@ reference:
     - bootstrapping
     - aggregate_predictions
     - aggregate_model
+    - Listeria_isolates 
+    - example_query
+    - rds_dir
