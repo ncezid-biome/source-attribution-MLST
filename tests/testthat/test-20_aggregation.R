@@ -22,6 +22,7 @@ test_that("Aggregating model LMO0003", {
 
 test_that("Aggregating LMO0003 with example_query", {
   input <- system.file("extdata/Listeria_isolates.csv.gz", package = "sourcerer")
+  example_query <- system.file("extdata/example_query.csv", package = "sourcerer")
   output <- tempdir()
   ncores <- 1
   bootstrap_reps <- 3
@@ -38,7 +39,7 @@ test_that("Aggregating LMO0003 with example_query", {
   predictions <- list()
 
   for (i in seq_along(filenames)) {
-    model <- filenames[i]
+    model <- filenames[[i]]
     predictions[[i]] <- prediction(
       model_filename = model,
       query = example_query, ncores = ncores
