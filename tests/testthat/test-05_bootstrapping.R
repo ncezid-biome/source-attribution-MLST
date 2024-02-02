@@ -1,6 +1,6 @@
 
 test_that("Bootstrapping on LMO0003", {
-  input <- system.file("extdata/Listeria_isolates.csv.gz", pacakge = "sourcerer")
+  input <- system.file("extdata/Listeria_isolates.csv.gz", package = "sourcerer")
   output <- tempdir()
   ncores <- 1
   bootstrap_reps <- 3
