@@ -19,7 +19,7 @@ log_threshold(SUCCESS)
 test_that("Aggregating model LMO0003", {
   models <- list()
   for(i in seq(1,3)){
-    model_filename <- paste0("test-results/bs", (i+22), ".rds")
+    model_filename <- paste0(rds_dir, "/bs", (i+22), ".rds")
     models[[i]] <- readRDS(model_filename)
   }
 
@@ -35,7 +35,7 @@ test_that("Aggregating LMO0003 with example_query", {
   # rfsrc prediction objects
   predictions <- list()
   for(i in seq(1,3)){
-    prediction_filename <- paste0("test-results/predictions",(i+22),".rds")
+    prediction_filename <- paste0(rds_dir, "/predictions",(i+22),".rds")
     predictions[[i]] <- readRDS(prediction_filename)
 
   }

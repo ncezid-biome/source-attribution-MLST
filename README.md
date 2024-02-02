@@ -96,4 +96,3 @@ print(head(ref_model$aggregate_rank))
 
 ```
 
-
