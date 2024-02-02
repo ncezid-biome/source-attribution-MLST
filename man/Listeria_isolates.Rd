@@ -5,10 +5,13 @@
 \alias{Listeria_isolates}
 \title{Listeria isolates}
 \format{
-A file path to Listeria_isolates.csv.gz.
-This file contains MLST profiles for many Listeria genomes
-and their food vehicle.
-It is used for training the random forest model.
+A data frame with 719 rows and 4807 variables:
+\describe{
+\item{\code{SRR_ID}}{character Sample ID}
+\item{\code{SourceSite}}{character Sample Source}
+\item{\code{food}}{character Food Type}
+\item{\code{LMO0XXX}{double Expression at site XXX}}
+}
 }
 \usage{
 Listeria_isolates

@@ -5,13 +5,15 @@
 \alias{example_query}
 \title{Example query}
 \format{
-A file path to example_query.csv
+A data frame with 1 rows and 4804 variables:
+\describe{
+\item{\code{LMO0XXX}}{double Expression at site XXX}
+}
 }
 \usage{
 example_query
 }
 \description{
 This is an example query for use with the prediction step.
-It contains one genome and its MLST profile.
 }
 \keyword{datasets}

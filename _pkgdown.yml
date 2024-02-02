@@ -9,8 +9,11 @@ reference:
     - bootstrapping
     - aggregate_predictions
     - aggregate_model
-    - Listeria_isolates 
+  - title: Example Data
+  - desc: Included example data to test package
+  - contents:
     - example_query
+    - Listeria_isolates
     - rds_dir
 
 #articles:
