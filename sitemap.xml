@@ -13,6 +13,9 @@
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/index.html</loc>
   </url>
   <url>
+    <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/Listeria_isolates.html</loc>
+  </url>
+  <url>
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/aggregate_model.html</loc>
   </url>
   <url>
@@ -25,6 +28,9 @@
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/cal_conf_attr.html</loc>
   </url>
   <url>
+    <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/example_query.html</loc>
+  </url>
+  <url>
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/index.html</loc>
   </url>
   <url>
@@ -32,6 +38,9 @@
   </url>
   <url>
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/prediction.html</loc>
+  </url>
+  <url>
+    <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/rds_dir.html</loc>
   </url>
   <url>
     <loc>https://ncezid-biome.github.io/source-attribution-MLST/reference/sel_rep_iso.html</loc>
