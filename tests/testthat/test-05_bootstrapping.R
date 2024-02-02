@@ -18,7 +18,7 @@ test_that("Bootstrapping on LMO0003", {
   bootstrap_reps <- 3
   loci_start_with <- "LMO0003"
   my_seed <- 23
-  print(paste0("=====I will read csv file ",input, "======"))
+  #print(paste0("=====I will read csv file ",input, "======"))
   filenames <- bootstrapping(input = input, output = output, 
                   ncores = ncores, bootstrap_reps = bootstrap_reps,
                   loci_start_with = loci_start_with, my_seed = my_seed )
