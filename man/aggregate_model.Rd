@@ -10,7 +10,8 @@ aggregate_model(models)
 \item{models}{(vector of `rfsrc`` objects)}
 }
 \value{
-composite (\verb{rfsrc`` object) The first rfsrc object is returned but modified with an attribute }$aggregate_rank``:
+composite (\code{rfsrc} object) The first rfsrc object is returned
+but modified with an attribute \verb{$aggregate_rank}:
 each gene is given the median rank in order of importance
 according to the VIMP scores from each bootstrap.
 }

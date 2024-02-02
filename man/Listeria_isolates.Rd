@@ -5,7 +5,10 @@
 \alias{Listeria_isolates}
 \title{Listeria isolates}
 \format{
-A file path to Listeria_isolates.csv.gz
+A file path to Listeria_isolates.csv.gz.
+This file contains MLST profiles for many Listeria genomes
+and their food vehicle.
+It is used for training the random forest model.
 }
 \usage{
 Listeria_isolates

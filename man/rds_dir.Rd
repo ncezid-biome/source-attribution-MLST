@@ -11,6 +11,11 @@ A file path to the rds_dir
 rds_dir
 }
 \description{
-This is where RDS files are stored for the unit tests
+This is where RDS files are stored for the unit tests.
+This includes but might not be limited to:
+\itemize{
+\item random forest bootstrap models
+\item predictions files from \code{example_query}
+}
 }
 \keyword{datasets}

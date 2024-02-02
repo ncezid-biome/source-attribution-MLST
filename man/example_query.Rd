@@ -12,5 +12,6 @@ example_query
 }
 \description{
 This is an example query for use with the prediction step.
+It contains one genome and its MLST profile.
 }
 \keyword{datasets}
