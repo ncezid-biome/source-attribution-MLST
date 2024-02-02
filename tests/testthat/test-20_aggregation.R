@@ -16,6 +16,8 @@ test_that("Aggregating model LMO0003", {
   models <- lapply(filenames, readRDS)
 
   composite_model <- aggregate_model(models)
+
+  expect_s3_class(composite_model, "rfsrc")
 })
 
 test_that("Aggregating LMO0003 with example_query", {
