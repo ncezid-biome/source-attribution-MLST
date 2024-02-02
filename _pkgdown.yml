@@ -9,3 +9,8 @@ reference:
     - bootstrapping
     - aggregate_predictions
     - aggregate_model
+  - title: Example Data
+  - desc: Included example data to test package
+  - contents:
+    - example_query
+    - Listeria_isolates
